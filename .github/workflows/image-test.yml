@@ -58,7 +58,7 @@ jobs:
           mkdir -p ${HOME}/.gazebo
           ln -s ${GITHUB_WORKSPACE} ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit
           docker run \
-            --name ${{ env.IMAGE_NAME }}} \
+            --name ${{ env.IMAGE_NAME }} \
             -d \
             --privileged \
             --net host \
