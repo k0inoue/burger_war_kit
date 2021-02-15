@@ -25,6 +25,7 @@ env:
   DOCKER_ROOT_DIR: ./docker
   DOCKER_FILE: ./docker/kit/Dockerfile
   TEST_VERSION: test.${{ github.run_number }}
+  TEST_LOG_ARCHIVE: test_log-${{ env.TEST_VERSION }}.zip
   RELEASE_VERSION: 4.1.1
 
 jobs:
@@ -39,8 +40,8 @@ jobs:
         uses: actions/checkout@v2
 
       # burger-war-kitイメージのビルド
-      - name: Build Docker Image
-        run: docker build --file ${{ env.DOCKER_FILE }} --tag ${{ env.IMAGE_NAME }} ${{ env.DOCKER_ROOT_DIR }}
+      #- name: Build Docker Image
+      #  run: docker build --file ${{ env.DOCKER_FILE }} --tag ${{ env.IMAGE_NAME }} ${{ env.DOCKER_ROOT_DIR }}
 
       # burger-war-kitコンテナ起動
       - name: Launch Docker Container
@@ -50,28 +51,45 @@ jobs:
             -d \
             --privileged \
             --net host \
-            -e HOST_USER_ID=1000 \
-            -e HOST_GROUP_ID=1000 \
-            ${{ env.IMAGE_NAME }}:latest \
+            -e HOST_USER_ID=$(id -u) \
+            -e HOST_GROUP_ID=$(id -g) \
+            ghcr.io/k0inoue/${{ env.IMAGE_NAME }}:test.1 \
             tail -f /dev/null
           docker ps -a
           docker logs ${{ env.IMAGE_NAME }}
       
+      # ロボコンプロジェクトのビルド
+      - name: Build Robot Programs
+        run: |
+          pwd
+          docker exec -u $(id -u):$(id -g) -t ${{ env.IMAGE_NAME }} bash -l -c "cd ../ && catkin build"
+          zip ${{ env.TEST_LOG_ARCHIVE }} ${HOME}/.ros/logs/latest/*
+
       # burger-war-kitのテスト
       - name: Test Docker Image
         id: image-test
-        run: docker exec -t ${{ env.IMAGE_NAME }} echo "This is test echo."
-
-      # ghcr.ioにログイン
-      - name: Login to ghrc.io
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ secrets.GHCR_USERNAME }}
-          password: ${{ secrets.GHCR_PASSWORD }}
-
-      # burger-war-kitrイメージをテストバージョンとしてプッシュ
-      - name: Push Docker Image
         run: |
-          docker tag ${{ env.IMAGE_NAME }} ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ env.TEST_VERSION }}
-          docker push ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ env.TEST_VERSION }}
+          docker exec -u $(id -u):$(id -g) -t ${{ env.IMAGE_NAME }} bash -l -c "cd src/burger_war_kit && bash -- scripts/sim_run_test.sh"
+          zip ${{ env.TEST_LOG_ARCHIVE }} ${HOME}/.ros/logs/latest/*
+
+      # # テスト結果をArtifactにアップロードする
+      # - name: Upload Artifact
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: test_log-${{ env.TEST_VERSION }}.zip
+      #     path: work_dir/output.txt
+      #     retention-days: 5
+
+      # # ghcr.ioにログイン
+      # - name: Login to ghrc.io
+      #   uses: docker/login-action@v1
+      #   with:
+      #     registry: ghcr.io
+      #     username: ${{ secrets.GHCR_USERNAME }}
+      #     password: ${{ secrets.GHCR_PASSWORD }}
+
+      # # burger-war-kitrイメージをテストバージョンとしてプッシュ
+      # - name: Push Docker Image
+      #   run: |
+      #     docker tag ${{ env.IMAGE_NAME }} ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ env.TEST_VERSION }}
+      #     docker push ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ env.TEST_VERSION }}
