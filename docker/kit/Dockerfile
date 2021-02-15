@@ -117,13 +117,14 @@ ENV TZ Asia/Tokyo
 # sudo時に引き継ぐ変数の設定
 RUN echo 'Defaults        env_keep += "http_proxy https_proxy ftp_proxy no_proxy HTTP_PROXY HTTPS_PROXY FTP_PROXY NO_PROXY"' >> /etc/sudoers
 
-# 初期ディレクトリの指定
-WORKDIR ${ROBOCON_WS}
-
 # 起動時の実行コマンドの指定
 COPY ./docker/entrypoint.sh /entrypoint.sh
 RUN chown ${USERNAME}:${USERNAME} /entrypoint.sh \
     && chmod +x /entrypoint.sh \
     && sed -i'' -e "s/^\(DEVELOPER_NAME\)=.*$/\1=${USERNAME}/g" /entrypoint.sh
+
 ENTRYPOINT [ "/entrypoint.sh" ]
 CMD [ "bash" "-l" ]
+
+# 初期ディレクトリの指定
+WORKDIR ${ROBOCON_WS}
