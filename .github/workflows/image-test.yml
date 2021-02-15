@@ -55,7 +55,7 @@ jobs:
       - name: Launch Docker Container
         run: |
           mkdir -p ${HOME}/.ros/log
-          mkdir -p ${HOME}/.gazebo
+          mkdir -p ${HOME}/.gazebo/log
           mkdir -p ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit
           cp -r burger_war/ ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit/burger_war
           cp -r judge/ ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit/judge
@@ -87,7 +87,7 @@ jobs:
       - name: Test Docker Image
         id: image-test
         run: |
-          docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "pwd && cd src/burger_war_kit && bash scripts/sim_run_test.sh"
+          docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "cd src/burger_war_kit && bash scripts/sim_run_test.sh"
           tar czvf ${{ env.TEST_LOG_ARCHIVE }} ${HOME}/.gazebo/log/ ${HOME}/.ros/log/latest/ ./judge/log/
 
       # テスト結果をArtifactにアップロードする
