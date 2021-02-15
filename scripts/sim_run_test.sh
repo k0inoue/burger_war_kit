@@ -72,7 +72,7 @@ TIMEOUT_SECOND=${1:-15}
 # テスト実施
 #------------------------------------------------
 # シミュレータ起動
-(bash ${SCRIPT_DIR}/sim_with_judge_nogui.sh > "${SIM_JUDGE_LOG}") &
+(bash ${SCRIPT_DIR}/sim_with_judge_nogui.sh > "${SIM_JUDGE_LOG}" 2>&1) &
 SIM_JUDGE_PID=$!
 
 # judgeサーバーが立ち上がるまでの仮待機(時間は要調整)
@@ -95,13 +95,14 @@ do
 done
 
 # シミュレーション開始
-(bash ${SCRIPT_DIR}/start_test.sh  > "${SIM_START_LOG}") &
+(bash ${SCRIPT_DIR}/start_test.sh  > "${SIM_START_LOG}" 2>&1) &
 SIM_START_PID=$!
 
 # シミュレーション終了待ち
 TIMEOUT_SECOND=185
 while [ ${TIMEOUT_SECOND} -ne 0 ]
 do
+  curl -s http://localhost:5000/warState | jq .scores
   sleep 1
   if ! ( curl -s http://localhost:5000/warState | jq .state | grep -c 'running' > /dev/null ) ; then
     # シミュレーション状態が実施中以外になった場合、終了

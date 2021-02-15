@@ -76,15 +76,17 @@ jobs:
         id: image-test
         run: |
           docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "cd src/burger_war_kit && bash scripts/sim_run_test.sh"
-          zip ${{ env.TEST_LOG_ARCHIVE }} .ros/log/latest/*
+          zip ${{ env.TEST_LOG_ARCHIVE }} ${HOME}/.gazebo/log/*
+          zip -u ${{ env.TEST_LOG_ARCHIVE }} / ${HOME}/.ros/log/latest/*
+          zip -u ${{ env.TEST_LOG_ARCHIVE }} / ./judge/log/*
 
-      # # テスト結果をArtifactにアップロードする
-      # - name: Upload Artifact
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: test_log-${{ env.TEST_VERSION }}.zip
-      #     path: work_dir/output.txt
-      #     retention-days: 5
+      # テスト結果をArtifactにアップロードする
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.TEST_LOG_ARCHIVE }}
+          path: ./${{ env.TEST_LOG_ARCHIVE }}
+          retention-days: 5
 
       # # ghcr.ioにログイン
       # - name: Login to ghrc.io
