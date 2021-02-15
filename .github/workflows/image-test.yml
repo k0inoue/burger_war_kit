@@ -58,17 +58,16 @@ jobs:
           mkdir -p ${HOME}/.gazebo
           ln -s ${GITHUB_WORKSPACE} ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit
           docker run \
-            --name ${KIT_DOCKER_CONTAINER_NAME} \
+            --name ${{ env.IMAGE_NAME }}} \
             -d \
             --privileged \
             --net host \
-            --mount type=bind,src=${HOME}/work/burger_war_kit,dst=${CONTAINER_WS_DIR} \
+            --mount type=bind,src=${GITHUB_WORKSPACE}/catkin_ws,dst=/home/developer/catkin_ws \
             --device /dev/snd \
             -v /dev/shm \
             -e HOST_USER_ID=$(id -u) \
             -e HOST_GROUP_ID=$(id -g) \
-            ${RUN_OPTION} \
-            ${KIT_DOCKER_IMAGE_NAME}:${IMAGE_VERSION} \
+            ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ env.TEST_VERSION }} \
             tail -f /dev/null
           docker ps -a
           docker logs ${{ env.IMAGE_NAME }}
