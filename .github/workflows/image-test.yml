@@ -57,6 +57,9 @@ jobs:
           mkdir -p ${HOME}/.ros/log
           mkdir -p ${HOME}/.gazebo
           ln -s ${GITHUB_WORKSPACE} ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit
+          ls -l ${GITHUB_WORKSPACE}/catkin_ws/src
+          ls -l ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit
+          ls -l ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_dev
           docker run \
             --name ${{ env.IMAGE_NAME }} \
             -d \
