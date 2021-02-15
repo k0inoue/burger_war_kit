@@ -32,6 +32,7 @@ RUN apt-get update -q && apt-get install -y --no-install-recommends \
         python-pil \
         python-pil.imagetk \
         python-catkin-tools \
+        jq \
     && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update -q && apt-get install -y --no-install-recommends \
@@ -109,7 +110,7 @@ RUN chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/
 ENV TZ Asia/Tokyo
 
 # sudo時に引き継ぐ変数の設定
-RUN echo 'Defaults        env_keep += "http_proxy https_proxy ftp_proxy HTTP_PROXY HTTPS_PROXY FTP_PROXY"' >> /etc/sudoers
+RUN echo 'Defaults        env_keep += "http_proxy https_proxy ftp_proxy no_proxy HTTP_PROXY HTTPS_PROXY FTP_PROXY NO_PROXY"' >> /etc/sudoers
 
 # 初期ディレクトリの指定
 WORKDIR ${ROBOCON_WS}
