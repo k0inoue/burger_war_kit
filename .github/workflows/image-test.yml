@@ -25,7 +25,7 @@ env:
   DOCKER_ROOT_DIR: ./docker
   DOCKER_FILE: ./docker/kit/Dockerfile
   #TEST_VERSION: test.${{ github.run_number }}
-  TEST_VERSION: test.8
+  TEST_VERSION: auto-test
   TEST_LOG_ARCHIVE: log-test.${{ github.run_number }}.zip
   RELEASE_VERSION: 4.1.1
 

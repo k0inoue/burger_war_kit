@@ -83,6 +83,7 @@ RUN useradd --create-home --home-dir /home/${USERNAME} --shell /bin/bash --user-
 RUN test -f /etc/ros/rosdep/sources.list.d/20-default.list && \
     rm /etc/ros/rosdep/sources.list.d/20-default.list
 RUN rosdep init && \
+    gosu ${USERNAME} mkdir -p /home/${USERNAME}/.ros/log && \
     gosu ${USERNAME} rosdep update
 
 
