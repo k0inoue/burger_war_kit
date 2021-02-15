@@ -56,10 +56,12 @@ jobs:
         run: |
           mkdir -p ${HOME}/.ros/log
           mkdir -p ${HOME}/.gazebo
-          ln -s ${GITHUB_WORKSPACE} ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit
-          ls -l ${GITHUB_WORKSPACE}/catkin_ws/src
-          ls -l ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit
-          ls -l ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_dev
+          mkdir -p ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit
+          cp -r burger_war/ ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit/burger_war
+          cp -r judge/ ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit/judge
+          cp -r scripts/ ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit/scripts
+          ls ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit/
+          ls ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_dev/
           docker run \
             --name ${{ env.IMAGE_NAME }} \
             -d \
