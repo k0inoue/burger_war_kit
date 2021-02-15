@@ -81,7 +81,6 @@ fi
 
 # 新たにコンテナを起動する
 #------------------------------------------------
-#  --mount type=bind,src=${HOST_WS_DIR},dst=${CONTAINER_WS_DIR} \
 set -x
 docker run \
   --name ${KIT_DOCKER_CONTAINER_NAME} \
@@ -89,6 +88,7 @@ docker run \
   --privileged \
   --net host \
   --mount type=bind,src=/tmp/.X11-unix/,dst=/tmp/.X11-unix \
+  --mount type=bind,src=${HOST_WS_DIR},dst=${CONTAINER_WS_DIR} \
   --device /dev/snd \
   -v /dev/shm \
   -e DISPLAY=${DISPLAY} \

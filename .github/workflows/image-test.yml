@@ -40,6 +40,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      # 環境準備
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          repository: p-robotics-hub/burger_war_dev
+          path: ../burger_war_dev
+
       # # burger-war-kitイメージのビルド
       # - name: Build Docker Image
       #   run: docker build --file ${{ env.DOCKER_FILE }} --tag ${{ env.IMAGE_NAME }} .
@@ -49,18 +56,19 @@ jobs:
         run: |
           mkdir -p ${HOME}/.ros/log
           mkdir -p ${HOME}/.gazebo
+          mkdir -p ${HOME}/work/burger_war_kit/src
           docker run \
-            --name ${{ env.IMAGE_NAME }} \
+            --name ${KIT_DOCKER_CONTAINER_NAME} \
             -d \
             --privileged \
             --net host \
+            --mount type=bind,src=${HOME}/work/burger_war_kit,dst=${CONTAINER_WS_DIR} \
+            --device /dev/snd \
+            -v /dev/shm \
             -e HOST_USER_ID=$(id -u) \
             -e HOST_GROUP_ID=$(id -g) \
-            --device /dev/snd \
-            -v ${HOME}/.ros/log:/home/developer/.ros/log \
-            -v ${HOME}/.gazebo:/home/developer/.gazebo \
-            -v /dev/shm \
-            ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ env.TEST_VERSION }} \
+            ${RUN_OPTION} \
+            ${KIT_DOCKER_IMAGE_NAME}:${IMAGE_VERSION} \
             tail -f /dev/null
           docker ps -a
           docker logs ${{ env.IMAGE_NAME }}
