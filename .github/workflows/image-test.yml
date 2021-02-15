@@ -53,7 +53,7 @@ jobs:
             --net host \
             -e HOST_USER_ID=$(id -u) \
             -e HOST_GROUP_ID=$(id -g) \
-            ${{ env.IMAGE_NAME }}:${TEST_VERSION} \
+            ${{ env.IMAGE_NAME }} \
             tail -f /dev/null
           docker ps -a
           docker logs ${{ env.IMAGE_NAME }}
