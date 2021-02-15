@@ -90,7 +90,7 @@ docker run \
   --mount type=bind,src=/tmp/.X11-unix/,dst=/tmp/.X11-unix \
   --mount type=bind,src=${HOST_WS_DIR},dst=${CONTAINER_WS_DIR} \
   --device /dev/snd \
-  --device /dev/shm \
+  -v /dev/shm \
   -e DISPLAY=${DISPLAY} \
   -e HOST_USER_ID=$(id -u) \
   -e HOST_GROUP_ID=$(id -g) \

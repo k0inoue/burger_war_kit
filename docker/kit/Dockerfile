@@ -89,12 +89,17 @@ RUN rosdep init && \
 # ワークスペース作成
 #------------------------------------------------
 ARG ROBOCON_WS=/home/${USERNAME}/catkin_ws
+RUN mkdir -p ${ROBOCON_WS}/src/burger_war_kit
+COPY ./burger_war ${ROBOCON_WS}/src/burger_war_kit/burger_war
+COPY ./judge ${ROBOCON_WS}/src/burger_war_kit/judge
+COPY ./scripts ${ROBOCON_WS}/src/burger_war_kit/scripts
+RUN rm -f ${ROBOCON_WS}/src/burger_war_kit/judge/log/*
 
 
 # コンテナ起動時の設定
 #------------------------------------------------
 # 必要なファイルを展開
-COPY ./templates/ /home/${USERNAME}/
+COPY ./docker/templates/ /home/${USERNAME}/
 
 # 永続化したい設定を.bashrc/.bash_profileに追加
 RUN cat /home/${USERNAME}/export_env \
@@ -116,7 +121,7 @@ RUN echo 'Defaults        env_keep += "http_proxy https_proxy ftp_proxy no_proxy
 WORKDIR ${ROBOCON_WS}
 
 # 起動時の実行コマンドの指定
-COPY ./entrypoint.sh /entrypoint.sh
+COPY ./docker/entrypoint.sh /entrypoint.sh
 RUN chown ${USERNAME}:${USERNAME} /entrypoint.sh \
     && chmod +x /entrypoint.sh \
     && sed -i'' -e "s/^\(DEVELOPER_NAME\)=.*$/\1=${USERNAME}/g" /entrypoint.sh

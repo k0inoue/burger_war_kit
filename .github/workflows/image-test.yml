@@ -40,8 +40,8 @@ jobs:
         uses: actions/checkout@v2
 
       # burger-war-kitイメージのビルド
-      #- name: Build Docker Image
-      #  run: docker build --file ${{ env.DOCKER_FILE }} --tag ${{ env.IMAGE_NAME }} ${{ env.DOCKER_ROOT_DIR }}
+      - name: Build Docker Image
+        run: docker build --file ${{ env.DOCKER_FILE }} --tag ${{ env.IMAGE_NAME }} ${{ env.DOCKER_ROOT_DIR }}
 
       # burger-war-kitコンテナ起動
       - name: Launch Docker Container
@@ -53,7 +53,7 @@ jobs:
             --net host \
             -e HOST_USER_ID=$(id -u) \
             -e HOST_GROUP_ID=$(id -g) \
-            ghcr.io/k0inoue/${{ env.IMAGE_NAME }}:test.1 \
+            ${{ env.IMAGE_NAME }}:${TEST_VERSION} \
             tail -f /dev/null
           docker ps -a
           docker logs ${{ env.IMAGE_NAME }}
@@ -62,14 +62,13 @@ jobs:
       - name: Build Robot Programs
         run: |
           pwd
-          docker exec -u $(id -u):$(id -g) -t ${{ env.IMAGE_NAME }} bash -l -c "cd ../ && catkin build"
-          zip ${{ env.TEST_LOG_ARCHIVE }} ${HOME}/.ros/logs/latest/*
+          docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "catkin build"
 
       # burger-war-kitのテスト
       - name: Test Docker Image
         id: image-test
         run: |
-          docker exec -u $(id -u):$(id -g) -t ${{ env.IMAGE_NAME }} bash -l -c "cd src/burger_war_kit && bash -- scripts/sim_run_test.sh"
+          docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "cd src/burger_war_kit && bash scripts/sim_run_test.sh"
           zip ${{ env.TEST_LOG_ARCHIVE }} ${HOME}/.ros/logs/latest/*
 
       # # テスト結果をArtifactにアップロードする
