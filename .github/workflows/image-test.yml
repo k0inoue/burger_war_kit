@@ -41,7 +41,7 @@ jobs:
 
       # burger-war-kitイメージのビルド
       - name: Build Docker Image
-        run: docker build --file ${{ env.DOCKER_FILE }} --tag ${{ env.IMAGE_NAME }} ${{ env.DOCKER_ROOT_DIR }}
+        run: docker build --file ${{ env.DOCKER_FILE }} --tag ${{ env.IMAGE_NAME }} .
 
       # burger-war-kitコンテナ起動
       - name: Launch Docker Container
