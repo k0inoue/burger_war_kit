@@ -45,7 +45,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: p-robotics-hub/burger_war_dev
-          path: ../burger_war_dev
+          path: ./catkin_ws/src/burger_war_dev
 
       # # burger-war-kitイメージのビルド
       # - name: Build Docker Image
@@ -56,7 +56,7 @@ jobs:
         run: |
           mkdir -p ${HOME}/.ros/log
           mkdir -p ${HOME}/.gazebo
-          mkdir -p ${HOME}/work/burger_war_kit/src
+          ln -s ${GITHUB_WORKSPACE} ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit
           docker run \
             --name ${KIT_DOCKER_CONTAINER_NAME} \
             -d \
