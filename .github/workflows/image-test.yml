@@ -26,7 +26,7 @@ env:
   DOCKER_FILE: ./docker/kit/Dockerfile
   #TEST_VERSION: test.${{ github.run_number }}
   TEST_VERSION: auto-test
-  TEST_LOG_ARCHIVE: log-test.${{ github.run_number }}.zip
+  TEST_LOG_ARCHIVE: log-test.${{ github.run_number }}.tar
   RELEASE_VERSION: 4.1.1
 
 jobs:
@@ -76,9 +76,7 @@ jobs:
         id: image-test
         run: |
           docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "cd src/burger_war_kit && bash scripts/sim_run_test.sh"
-          zip ${{ env.TEST_LOG_ARCHIVE }} ${HOME}/.gazebo/log/*
-          zip -u ${{ env.TEST_LOG_ARCHIVE }} / ${HOME}/.ros/log/latest/*
-          zip -u ${{ env.TEST_LOG_ARCHIVE }} / ./judge/log/*
+          tar czvf ${{ env.TEST_LOG_ARCHIVE }} ${HOME}/.gazebo/log/ ${HOME}/.ros/log/latest/ ./judge/log/
 
       # テスト結果をArtifactにアップロードする
       - name: Upload Artifact
