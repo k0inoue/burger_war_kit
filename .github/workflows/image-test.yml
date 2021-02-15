@@ -47,7 +47,8 @@ jobs:
       # burger-war-kitコンテナ起動
       - name: Launch Docker Container
         run: |
-          mkdir -p .ros/log
+          mkdir -p ${HOME}/.ros/log
+          mkdir -p ${HOME}/.gazebo
           docker run \
             --name ${{ env.IMAGE_NAME }} \
             -d \
@@ -56,7 +57,8 @@ jobs:
             -e HOST_USER_ID=$(id -u) \
             -e HOST_GROUP_ID=$(id -g) \
             --device /dev/snd \
-            -v .ros/log:/home/developer/.ros/log \
+            -v ${HOME}/.ros/log:/home/developer/.ros/log \
+            -v ${HOME}/.gazebo:/home/developer/.gazebo \
             -v /dev/shm \
             ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ env.TEST_VERSION }} \
             tail -f /dev/null
