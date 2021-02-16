@@ -34,7 +34,7 @@ cancel_user() {
 }
 trap cancel_user SIGINT
 timeout_exit() {
-  echo "simulation statup timeout..."
+  echo "simulator startup timeout..."
   [ -n "${SIM_JUDGE_PID}" ] && echo JUDGE_PID:${SIM_JUDGE_PID} && killpstree ${SIM_JUDGE_PID}
   [ -n "${SIM_START_PID}" ] && echo START_PID:${SIM_START_PID} && killpstree ${SIM_START_PID}
   sleep 5
@@ -98,7 +98,7 @@ TIMEOUT_SECOND=${1:-30}
 #------------------------------------------------
 # 終了時のメッセージと状態を出力
 echo "==============================================================================="
-echo " Simulation Start"
+echo " Simulator Startup"
 echo "==============================================================================="
 # シミュレータ起動
 (bash ${SCRIPT_DIR}/sim_with_judge_nogui.sh > "${SIM_JUDGE_LOG}" 2>&1) &
@@ -112,14 +112,14 @@ while :
 do
   sleep 1
   ready_count=$(curl -s ${JUDGE_SERVER_ADDR} | jq .ready[] | grep -c 'true' && :)
-  echo REDAY_COUNT: $ready_count
+  echo "REDAY_COUNT: $ready_count"
   if [ ${ready_count} -eq 2 ]; then
     # 2台ともready=trueになったら、準備完了と見なす
-    echo SUCCESS: simulator is running ...
+    echo "SUCCESS: simulator is running ..."
     break
   elif [ ${TIMEOUT_SECOND} -eq 0 ]; then
     # タイムアウト
-    echo ERROR: simulator is not running ...
+    echo "ERROR: simulator is not running ..."
     kill -QUIT ${ROOT_PID}
   fi
   TIMEOUT_SECOND=$((TIMEOUT_SECOND - 1)) 
@@ -164,6 +164,7 @@ killpstree ${SIM_START_PID}
 killpstree ${SIM_JUDGE_PID}
 
 # 親プロセス(本スクリプト)が早く落ちすぎて子プロセスがゾンビプロセスとして残るため、少し待機
+echo "Wait simulator shutdown ..."
 sleep 8
 
 # テストPASS
