@@ -40,12 +40,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # 環境準備
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          repository: p-robotics-hub/burger_war_dev
-          path: ./catkin_ws/src/burger_war_dev
+      # # 環境準備
+      # - name: Checkout repository
+      #   uses: actions/checkout@v2
+      #   with:
+      #     repository: p-robotics-hub/burger_war_dev
+      #     path: ./catkin_ws/src/burger_war_dev
 
       # # burger-war-kitイメージのビルド
       # - name: Build Docker Image
@@ -61,7 +61,6 @@ jobs:
           cp -r judge/ ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit/judge
           cp -r scripts/ ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit/scripts
           ls ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit/
-          ls ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_dev/
           docker run \
             --name ${{ env.IMAGE_NAME }} \
             -d \
@@ -70,6 +69,7 @@ jobs:
             --mount type=bind,src=${GITHUB_WORKSPACE}/catkin_ws,dst=/home/developer/catkin_ws \
             --device /dev/snd \
             -v /dev/shm \
+            -e DISPLAY=:0 \
             -e HOST_USER_ID=$(id -u) \
             -e HOST_GROUP_ID=$(id -g) \
             ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ env.TEST_VERSION }} \

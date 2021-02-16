@@ -87,6 +87,16 @@ RUN rosdep init && \
     gosu ${USERNAME} mkdir -p /home/${USERNAME}/.gazebo && \
     gosu ${USERNAME} rosdep update
 
+ENV DEBIAN_FRONTEND=noninteractive
+
+# ドライバのインストールで止まる場合がある為、予めインストール
+RUN apt-get update -q && apt-get install -y --no-install-recommends \
+        keyboard-configuration \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN sudo apt-get update -q && sudo apt-get install -y \
+        nvidia-driver-450 \
+    && rm -rf /var/lib/apt/lists/*
 
 # ワークスペース作成
 #------------------------------------------------
@@ -96,6 +106,7 @@ COPY ./burger_war ${ROBOCON_WS}/src/burger_war_kit/burger_war
 COPY ./judge ${ROBOCON_WS}/src/burger_war_kit/judge
 COPY ./scripts ${ROBOCON_WS}/src/burger_war_kit/scripts
 RUN rm -f ${ROBOCON_WS}/src/burger_war_kit/judge/log/*
+
 
 
 # コンテナ起動時の設定
