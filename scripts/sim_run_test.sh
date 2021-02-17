@@ -171,14 +171,14 @@ sleep 15
 cp -r ${HOME}/.ros/log "${LOGDIR}/ros"
 cp -r ${HOME}/.gazebo/log "${LOGDIR}/gazebo"
 cp -r ${HOME}/catkin_ws/src/burger_war_kit/judge/log "${LOGDIR}/judge"
-tar czvf ${HOME}/catkin_ws/logs/${LOG_ARHCIVE_NAME}.tar "${LOGDIR}"
+tar czvf ${HOME}/catkin_ws/logs/${LOG_ARHCIVE_NAME}.tar.gz "${LOGDIR}"
 
 # 終了時のメッセージと状態を出力
 echo "==============================================================================="
 echo " Simulation Finished!"
 echo "-------------------------------------------------------------------------------"
 echo "  SCORE (blue vs red): ${BLUE_POINT} vs ${RED_POINT}"
-echo "  TEST LOG FILES     : ${HOME}/catkin_ws/logs/${LOG_ARHCIVE_NAME}.tar"
+echo "  TEST LOG FILES     : ${HOME}/catkin_ws/logs/${LOG_ARHCIVE_NAME}.tar.gz"
 echo "==============================================================================="
 
 # テストPASS
