@@ -90,13 +90,12 @@ RUN rosdep init && \
 # ワークスペース作成
 #------------------------------------------------
 ARG ROBOCON_WS=/home/${USERNAME}/catkin_ws
-RUN mkdir -p ${ROBOCON_WS}/src/burger_war_kit
+RUN mkdir -p ${ROBOCON_WS}/src/burger_war_kit && \
+    mkdir -p ${ROBOCON_WS}/logs
 COPY ./burger_war ${ROBOCON_WS}/src/burger_war_kit/burger_war
 COPY ./judge ${ROBOCON_WS}/src/burger_war_kit/judge
 COPY ./scripts ${ROBOCON_WS}/src/burger_war_kit/scripts
 RUN rm -f ${ROBOCON_WS}/src/burger_war_kit/judge/log/*
-
-
 
 # コンテナ起動時の設定
 #------------------------------------------------

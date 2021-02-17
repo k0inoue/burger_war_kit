@@ -26,8 +26,9 @@ env:
   DOCKER_FILE: ./docker/kit/Dockerfile
   #TEST_VERSION: test.${{ github.run_number }}
   TEST_VERSION: auto-test
-  TEST_LOG_ARCHIVE: log-test.${{ github.run_number }}.tar
+  TEST_LOG_ARCHIVE: test_logs.${{ github.run_number }}.tar
   RELEASE_VERSION: 4.1.1
+  DISPLAY: :99
 
 jobs:
   # ビルドとテストを実施し、テストにPASSすれば、仮バージョンでプッシュ
@@ -40,45 +41,39 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # # 環境準備
-      # - name: Checkout repository
-      #   uses: actions/checkout@v2
-      #   with:
-      #     repository: p-robotics-hub/burger_war_dev
-      #     path: ./catkin_ws/src/burger_war_dev
-
       # # burger-war-kitイメージのビルド
-      # - name: Build Docker Image
-      #   run: docker build --file ${{ env.DOCKER_FILE }} --tag ${{ env.IMAGE_NAME }} .
+      - name: Build Docker Image
+        run: docker build --file ${{ env.DOCKER_FILE }} --tag ${{ env.IMAGE_NAME }} .
 
       # xvfbのインストールと起動
       - name: Xvfb install and run
         run: |
           sudo apt-get install -y xvfb
-          Xvfb -ac :99 -screen 0 1280x1024x24 >/dev/null 2>&1 &
+          Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x1024x24 >/dev/null 2>&1 &
 
       # burger-war-kitコンテナ起動
       - name: Launch Docker Container
         run: |
           mkdir -p ${HOME}/.ros/log
           mkdir -p ${HOME}/.gazebo/log
+          mkdir -p ${GITHUB_WORKSPACE}/catkin_ws/logs
           mkdir -p ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit
-          cp -r burger_war/ ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit/burger_war
-          cp -r judge/ ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit/judge
-          cp -r scripts/ ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit/scripts
+          #cp -r burger_war/ ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit/burger_war
+          #cp -r judge/ ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit/judge
+          #cp -r scripts/ ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit/scripts
           ls ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit/
           docker run \
             --name ${{ env.IMAGE_NAME }} \
             -d \
             --privileged \
             --net host \
-            --mount type=bind,src=${GITHUB_WORKSPACE}/catkin_ws,dst=/home/developer/catkin_ws \
+            --mount type=bind,src=${GITHUB_WORKSPACE}/catkin_ws/logs,dst=/home/developer/catkin_ws/logs \
             --device /dev/snd \
             -v /dev/shm \
-            -e DISPLAY=:99 \
+            -e DISPLAY=${{ env.DISPLAY }} \
             -e HOST_USER_ID=$(id -u) \
             -e HOST_GROUP_ID=$(id -g) \
-            ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ env.TEST_VERSION }} \
+            ${{ env.IMAGE_NAME }} \
             tail -f /dev/null
           docker ps -a
           docker logs ${{ env.IMAGE_NAME }}
@@ -94,14 +89,13 @@ jobs:
         id: image-test
         run: |
           docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "cd src/burger_war_kit && bash scripts/sim_run_test.sh"
-          tar czvf ${{ env.TEST_LOG_ARCHIVE }} ${HOME}/.gazebo/log/ ${HOME}/.ros/log/latest/ ./judge/log/
 
       # テスト結果をArtifactにアップロードする
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
           name: ${{ env.TEST_LOG_ARCHIVE }}
-          path: ./${{ env.TEST_LOG_ARCHIVE }}
+          path: ${GITHUB_WORKSPACE}/catkin_ws/logs/test_logs.tar
           retention-days: 5
 
       # # ghcr.ioにログイン

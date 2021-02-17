@@ -20,9 +20,16 @@ ROOT_PID=$$
 
 # 設定
 #------------------------------------------------
-# ログ出力先ファイル
-SIM_JUDGE_LOG="${HOME}/sim_with_judge_nogui.log"
-SIM_START_LOG="${HOME}/start_test.log"
+# ログアーカイブ名
+LOG_ARHCIVE_NAME=test_logs
+
+# ログ出力先
+LOGDIR=${HOME}/catkin_ws/logs/tests
+[ -d "${LOGDIR}" ] || mkdir -p "${LOGDIR}"
+SIM_JUDGE_LOG="${LOGDIR}/sim_with_judge_nogui.log"
+SIM_START_LOG="${LOGDIR}/start_test.log"
+
+# 接続するJudgeServerのURL
 JUDGE_SERVER_ADDR=http://localhost:5000/warState
 
 # 中断処理
@@ -134,7 +141,7 @@ SIM_START_PID=$!
 sleep 1
 
 # シミュレーション終了待ち
-TIMEOUT_SECOND=250
+TIMEOUT_SECOND=200
 while [ ${TIMEOUT_SECOND} -ne 0 ]
 do
   curl -s ${JUDGE_SERVER_ADDR} | jq -c '. | { time:.time, state:.state, ready:.ready, scores:.scores }'
@@ -152,20 +159,26 @@ done
 BLUE_POINT=$( curl -s ${JUDGE_SERVER_ADDR} | jq .scores.b )
 RED_POINT=$( curl -s ${JUDGE_SERVER_ADDR} | jq .scores.r )
 
+# 子プロセスを落とす
+killpstree ${SIM_START_PID}
+killpstree ${SIM_JUDGE_PID}
+
+# 本プロセスが早く落ちすぎて子プロセスがゾンビ化するため待機する
+echo "Wait simulator shutdown ..."
+sleep 15
+
+# ログを集める
+cp -r ${HOME}/.ros/log "${LOGDIR}/ros"
+cp -r ${HOME}/.gazebo/log "${LOGDIR}/gazebo"
+cp -r ${HOME}/catkin_ws/src/burger_war_kit/judge/log "${LOGDIR}/judge"
+tar czvf ${HOME}/catkin_ws/logs/${LOG_ARHCIVE_NAME}.tar "${LOGDIR}"
+
 # 終了時のメッセージと状態を出力
 echo "==============================================================================="
 echo " Simulation Finished!"
 echo "-------------------------------------------------------------------------------"
 echo "   SCORE (blue vs red): ${BLUE_POINT} vs ${RED_POINT}"
 echo "==============================================================================="
-
-# 子プロセスを落とす
-killpstree ${SIM_START_PID}
-killpstree ${SIM_JUDGE_PID}
-
-# 親プロセス(本スクリプト)が早く落ちすぎて子プロセスがゾンビプロセスとして残るため、少し待機
-echo "Wait simulator shutdown ..."
-sleep 15
 
 # テストPASS
 exit 0
