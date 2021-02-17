@@ -6,6 +6,9 @@ on:
   push:
     paths:
       - 'docker/**'
+      - 'scripts/**'
+      - 'judge/**'
+      - 'burger_war/**'
       - '.github/workflows/image-test.yml'
 
   # ブラウザ上からの手動実行設定
