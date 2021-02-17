@@ -87,17 +87,6 @@ RUN rosdep init && \
     gosu ${USERNAME} mkdir -p /home/${USERNAME}/.gazebo && \
     gosu ${USERNAME} rosdep update
 
-ENV DEBIAN_FRONTEND=noninteractive
-
-# ドライバのインストールで止まる場合がある為、予めインストール
-RUN apt-get update -q && apt-get install -y --no-install-recommends \
-        keyboard-configuration \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN sudo apt-get update -q && sudo apt-get install -y \
-        nvidia-driver-450 \
-    && rm -rf /var/lib/apt/lists/*
-
 # ワークスペース作成
 #------------------------------------------------
 ARG ROBOCON_WS=/home/${USERNAME}/catkin_ws
