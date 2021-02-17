@@ -171,7 +171,8 @@ sleep 15
 cp -r ${HOME}/.ros/log "${LOGDIR}/ros"
 cp -r ${HOME}/.gazebo/log "${LOGDIR}/gazebo"
 cp -r ${HOME}/catkin_ws/src/burger_war_kit/judge/log "${LOGDIR}/judge"
-tar czvf ${HOME}/catkin_ws/logs/${LOG_ARHCIVE_NAME}.tar.gz "${LOGDIR}"
+tar czvf ${LOG_ARHCIVE_NAME}.tar.gz "${LOGDIR}"
+mv ${LOG_ARHCIVE_NAME}.tar.gz ${HOME}/catkin_ws/logs/
 
 # 終了時のメッセージと状態を出力
 echo "==============================================================================="
