@@ -165,7 +165,7 @@ killpstree ${SIM_JUDGE_PID}
 
 # 親プロセス(本スクリプト)が早く落ちすぎて子プロセスがゾンビプロセスとして残るため、少し待機
 echo "Wait simulator shutdown ..."
-sleep 8
+sleep 15
 
 # テストPASS
 exit 0

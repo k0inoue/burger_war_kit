@@ -51,6 +51,12 @@ jobs:
       # - name: Build Docker Image
       #   run: docker build --file ${{ env.DOCKER_FILE }} --tag ${{ env.IMAGE_NAME }} .
 
+      # xvfbのインストールと起動
+      - name: Xvfb install and run
+        run: |
+          sudo apt-get install -y xvfb
+          Xvfb -ac :99 -screen 0 1280x1024x24 >/dev/null 2>&1 &
+
       # burger-war-kitコンテナ起動
       - name: Launch Docker Container
         run: |
@@ -69,7 +75,7 @@ jobs:
             --mount type=bind,src=${GITHUB_WORKSPACE}/catkin_ws,dst=/home/developer/catkin_ws \
             --device /dev/snd \
             -v /dev/shm \
-            -e DISPLAY=:0 \
+            -e DISPLAY=:99 \
             -e HOST_USER_ID=$(id -u) \
             -e HOST_GROUP_ID=$(id -g) \
             ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ env.TEST_VERSION }} \
