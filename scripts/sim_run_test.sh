@@ -24,10 +24,14 @@ ROOT_PID=$$
 LOG_ARHCIVE_NAME=test_logs
 
 # ログ出力先
-LOGDIR=${HOME}/catkin_ws/logs/tests
-[ -d "${LOGDIR}" ] || mkdir -p "${LOGDIR}"
-SIM_JUDGE_LOG="${LOGDIR}/sim_with_judge_nogui.log"
-SIM_START_LOG="${LOGDIR}/start_test.log"
+LOG_ROOT_DIR=${HOME}/catkin_ws/logs
+TEST_LOG_DIR=${LOG_ROOT_DIR}/test
+SIM_JUDGE_LOG="${TEST_LOG_DIR}/sim_with_judge.log"
+SIM_START_LOG="${TEST_LOG_DIR}/start_test.log"
+
+# テスト結果初期化
+[ -d "${TEST_LOG_DIR}" ] || mkdir -p "${TEST_LOG_DIR}"
+rm -rf "${TEST_LOG_DIR}/*"
 
 # 接続するJudgeServerのURL
 JUDGE_SERVER_ADDR=http://localhost:5000/warState
@@ -66,13 +70,14 @@ help_exit() {
   exit 0
 }
 killpstree(){
-  # 指定PIDのプロセスをKILLする
+  # 指定PIDのプロセスツリーを子プロセスからKILLする
   local children=$(ps --ppid $1 --no-heading | sed "s/^ //" | awk '{ print $1 }')
   for child in $children
   do
       killpstree $child
   done
   if [ "$1" != "${ROOT_PID}" ]; then
+    # 本スクリプトのPIDでなければKILL実行
     echo "KILL SIGINT --> $1"
     kill -INT $1 || :
   fi
@@ -119,7 +124,7 @@ while :
 do
   sleep 1
   ready_count=$(curl -s ${JUDGE_SERVER_ADDR} | jq .ready[] | grep -c 'true' && :)
-  echo "REDAY_COUNT: $ready_count"
+  echo "READY COUNT: $ready_count"
   if [ ${ready_count} -eq 2 ]; then
     # 2台ともready=trueになったら、準備完了と見なす
     echo "SUCCESS: simulator is running ..."
@@ -141,7 +146,7 @@ SIM_START_PID=$!
 sleep 1
 
 # シミュレーション終了待ち
-TIMEOUT_SECOND=250
+TIMEOUT_SECOND=300
 while [ ${TIMEOUT_SECOND} -ne 0 ]
 do
   curl -s ${JUDGE_SERVER_ADDR} | jq -c '. | { time:.time, state:.state, ready:.ready, scores:.scores }'
@@ -153,14 +158,13 @@ do
   TIMEOUT_SECOND=$((TIMEOUT_SECOND - 1))
 done
 
-# start_testプロセスを落とす
-killpstree ${SIM_START_PID}
 
 # 得点取得
 BLUE_POINT=$( curl -s ${JUDGE_SERVER_ADDR} | jq .scores.b )
 RED_POINT=$( curl -s ${JUDGE_SERVER_ADDR} | jq .scores.r )
 
-# sim_with_judgeプロセスを落とす
+# 子プロセスを落とす
+killpstree ${SIM_START_PID}
 killpstree ${SIM_JUDGE_PID}
 
 # 本プロセスが早く落ちすぎて子プロセスがゾンビ化するため待機する
@@ -168,18 +172,18 @@ echo "Wait simulator shutdown ..."
 sleep 15
 
 # ログを集める
-cp -r ${HOME}/.ros/log "${LOGDIR}/ros"
-cp -r ${HOME}/.gazebo/log "${LOGDIR}/gazebo"
-cp -r ${HOME}/catkin_ws/src/burger_war_kit/judge/log "${LOGDIR}/judge"
-tar czvf ${LOG_ARHCIVE_NAME}.tar.gz "${LOGDIR}"
-mv ${LOG_ARHCIVE_NAME}.tar.gz ${HOME}/catkin_ws/logs/
+cp -r ${HOME}/.ros/log "${TEST_LOG_DIR}/ros"
+cp -r ${HOME}/.gazebo/log "${TEST_LOG_DIR}/gazebo"
+cp -r ${HOME}/catkin_ws/src/burger_war_kit/judge/log "${TEST_LOG_DIR}/judge"
+tar czvf ${LOG_ARHCIVE_NAME}.tar.gz -C "${LOG_ROOT_DIR}" "test"
+#mv ${LOG_ARHCIVE_NAME}.tar.gz ${HOME}/catkin_ws/logs/
 
 # 終了時のメッセージと状態を出力
 echo "==============================================================================="
 echo " Simulation Finished!"
 echo "-------------------------------------------------------------------------------"
 echo "  SCORE (blue vs red): ${BLUE_POINT} vs ${RED_POINT}"
-echo "  TEST LOG FILES     : ${HOME}/catkin_ws/logs/${LOG_ARHCIVE_NAME}.tar.gz"
+echo "  TEST LOG FILES     : ${LOG_ROOT_DIR}/${LOG_ARHCIVE_NAME}.tar.gz"
 echo "==============================================================================="
 
 # テストPASS

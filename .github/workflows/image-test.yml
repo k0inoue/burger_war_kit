@@ -56,14 +56,7 @@ jobs:
       # burger-war-kitコンテナ起動
       - name: Launch Docker Container
         run: |
-          mkdir -p ${HOME}/.ros/log
-          mkdir -p ${HOME}/.gazebo/log
           mkdir -p ${GITHUB_WORKSPACE}/catkin_ws/logs
-          mkdir -p ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit
-          #cp -r burger_war/ ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit/burger_war
-          #cp -r judge/ ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit/judge
-          #cp -r scripts/ ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit/scripts
-          ls ${GITHUB_WORKSPACE}/catkin_ws/src/burger_war_kit/
           docker run \
             --name ${{ env.IMAGE_NAME }} \
             -d \
