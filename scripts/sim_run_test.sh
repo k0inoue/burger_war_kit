@@ -74,7 +74,7 @@ killpstree(){
   done
   if [ "$1" != "${ROOT_PID}" ]; then
     echo "KILL SIGINT --> $1"
-    sudo kill -INT $1
+    kill -INT $1 || :
   fi
 }
 
@@ -141,7 +141,7 @@ SIM_START_PID=$!
 sleep 1
 
 # シミュレーション終了待ち
-TIMEOUT_SECOND=200
+TIMEOUT_SECOND=250
 while [ ${TIMEOUT_SECOND} -ne 0 ]
 do
   curl -s ${JUDGE_SERVER_ADDR} | jq -c '. | { time:.time, state:.state, ready:.ready, scores:.scores }'
@@ -153,14 +153,14 @@ do
   TIMEOUT_SECOND=$((TIMEOUT_SECOND - 1))
 done
 
-#killpstree ${SIM_START_PID}
+# start_testプロセスを落とす
+killpstree ${SIM_START_PID}
 
 # 得点取得
 BLUE_POINT=$( curl -s ${JUDGE_SERVER_ADDR} | jq .scores.b )
 RED_POINT=$( curl -s ${JUDGE_SERVER_ADDR} | jq .scores.r )
 
-# 子プロセスを落とす
-killpstree ${SIM_START_PID}
+# sim_with_judgeプロセスを落とす
 killpstree ${SIM_JUDGE_PID}
 
 # 本プロセスが早く落ちすぎて子プロセスがゾンビ化するため待機する
@@ -177,7 +177,8 @@ tar czvf ${HOME}/catkin_ws/logs/${LOG_ARHCIVE_NAME}.tar "${LOGDIR}"
 echo "==============================================================================="
 echo " Simulation Finished!"
 echo "-------------------------------------------------------------------------------"
-echo "   SCORE (blue vs red): ${BLUE_POINT} vs ${RED_POINT}"
+echo "  SCORE (blue vs red): ${BLUE_POINT} vs ${RED_POINT}"
+echo "  TEST LOG FILES     : ${HOME}/catkin_ws/logs/${LOG_ARHCIVE_NAME}.tar"
 echo "==============================================================================="
 
 # テストPASS
