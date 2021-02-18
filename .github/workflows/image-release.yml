@@ -11,17 +11,17 @@ on:
       # 試験実施バージョンの指定
       test_version:
         description: 'Passed test version'
-        default: 'test.'
+        default: test.
         required: true
       # リリースバージョンの指定
       release_version:
         description: 'Release version'
-        default: '4.x.x'
+        default: 4.x.x
         required: true
       # バージョン形式のチェック有無
       check_on:
         description: 'Check validation input version'
-        default: ${{ true }}
+        default: on
         required: true
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
@@ -35,7 +35,7 @@ jobs:
     steps:
     # Runs a single command using the runners shell
     - name: Check Input Test Version
-      if: ${{ github.event.inputs.check_on }}
+      if: ${{ github.event.inputs.check_on == 'on' }}
       run: |
         if echo "${{ github.event.inputs.test_version }}" | grep -E "^test\.[1-9][0-9]*$"; then
           echo "valid test version"
@@ -44,7 +44,7 @@ jobs:
         fi
 
     - name: Check Input Release Version
-      if: ${{ github.event.inputs.check_on }}
+      if: ${{ github.event.inputs.check_on == 'on' }}
       run: |
         if echo "${{ github.event.inputs.release_version }}" | grep -E "^4\.[0-9]+\.[0-9]+$"; then
           echo "valid test version"
