@@ -87,7 +87,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{ env.TEST_LOG_ARCHIVE }}
-          path: ${{ github.WORKSPACE }}/catkin_ws/logs/test
+          path: ${{ github.WORKSPACE }}/catkin_ws/logs/test/
           retention-days: 5
 
       # ghcr.ioにログイン
