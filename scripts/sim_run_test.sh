@@ -190,7 +190,7 @@ sleep 15
 cp -r "${HOME}/.ros/log" "${TEST_LOG_DIR}/ros"
 cp -r "${HOME}/.gazebo/log" "${TEST_LOG_DIR}/gazebo"
 cp -r "${HOME}/catkin_ws/src/burger_war_kit/judge/log" "${TEST_LOG_DIR}/judge"
-#tar czvf "${LOG_ROOT_DIR}/${LOG_ARHCIVE_NAME}.tar.gz" -C "${LOG_ROOT_DIR}" ./test
+tar cvf "${LOG_ROOT_DIR}/${LOG_ARHCIVE_NAME}.tar" -C "${LOG_ROOT_DIR}" ./test
 
 # 終了時のメッセージを出力
 echo "==============================================================================="
