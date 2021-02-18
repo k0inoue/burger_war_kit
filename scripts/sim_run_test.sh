@@ -190,14 +190,14 @@ sleep 15
 cp -r "${HOME}/.ros/log" "${TEST_LOG_DIR}/ros"
 cp -r "${HOME}/.gazebo/log" "${TEST_LOG_DIR}/gazebo"
 cp -r "${HOME}/catkin_ws/src/burger_war_kit/judge/log" "${TEST_LOG_DIR}/judge"
-tar czvf "${LOG_ROOT_DIR}/${LOG_ARHCIVE_NAME}.tar.gz" -C "${LOG_ROOT_DIR}" ./test
+#tar czvf "${LOG_ROOT_DIR}/${LOG_ARHCIVE_NAME}.tar.gz" -C "${LOG_ROOT_DIR}" ./test
 
 # 終了時のメッセージを出力
 echo "==============================================================================="
 echo -e " SIMULATION RESULT: ${RESULT_MESSAGE}"
 echo "-------------------------------------------------------------------------------"
 echo "  SCORE (blue vs red): ${BLUE_POINT} vs ${RED_POINT}"
-echo "  TEST LOG FILES     : ${LOG_ROOT_DIR}/${LOG_ARHCIVE_NAME}.tar.gz"
+echo "  TEST LOG FILES     : ${TEST_LOG_DIR}"
 echo "==============================================================================="
 
 exit ${TEST_RESULT}

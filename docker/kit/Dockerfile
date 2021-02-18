@@ -80,18 +80,18 @@ RUN useradd --create-home --home-dir /home/${USERNAME} --shell /bin/bash --user-
 
 # ROSの初期化
 #------------------------------------------------
-RUN test -f /etc/ros/rosdep/sources.list.d/20-default.list && \
-    rm /etc/ros/rosdep/sources.list.d/20-default.list
-RUN rosdep init && \
-    gosu ${USERNAME} mkdir -p /home/${USERNAME}/.ros/log && \
-    gosu ${USERNAME} mkdir -p /home/${USERNAME}/.gazebo/log && \
-    gosu ${USERNAME} rosdep update
+RUN test -f /etc/ros/rosdep/sources.list.d/20-default.list \
+    && rm /etc/ros/rosdep/sources.list.d/20-default.list
+RUN rosdep init \
+    && gosu ${USERNAME} rosdep update \
+    && mkdir -p /home/${USERNAME}/.ros/log \
+    && mkdir -p /home/${USERNAME}/.gazebo/log
 
 # ワークスペース作成
 #------------------------------------------------
 ARG ROBOCON_WS=/home/${USERNAME}/catkin_ws
-RUN mkdir -p ${ROBOCON_WS}/src/burger_war_kit && \
-    mkdir -p ${ROBOCON_WS}/logs
+RUN mkdir -p ${ROBOCON_WS}/src/burger_war_kit \
+    && mkdir -p ${ROBOCON_WS}/logs
 COPY ./burger_war ${ROBOCON_WS}/src/burger_war_kit/burger_war
 COPY ./judge ${ROBOCON_WS}/src/burger_war_kit/judge
 COPY ./scripts ${ROBOCON_WS}/src/burger_war_kit/scripts

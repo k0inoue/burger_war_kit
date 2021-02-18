@@ -27,7 +27,7 @@ env:
   IMAGE_NAME: burger-war-kit
   DOCKER_FILE: ./docker/kit/Dockerfile
   TEST_VERSION: test.${{ github.run_number }}
-  TEST_LOG_ARCHIVE: test_logs.${{ github.run_number }}.tar.gz
+  TEST_LOG_ARCHIVE: test_logs-${{ github.run_number }}
   DISPLAY: :99
 
 jobs:
@@ -87,7 +87,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{ env.TEST_LOG_ARCHIVE }}
-          path: ${{ github.WORKSPACE }}/catkin_ws/logs/test_logs.tar.gz
+          path: ${{ github.WORKSPACE }}/catkin_ws/logs/test
           retention-days: 5
 
       # ghcr.ioにログイン
