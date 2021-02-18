@@ -31,7 +31,7 @@ SIM_START_LOG="${TEST_LOG_DIR}/start_test.log"
 
 # テスト結果初期化
 [ -d "${TEST_LOG_DIR}" ] || mkdir -p "${TEST_LOG_DIR}"
-rm -rf "${TEST_LOG_DIR}/*"
+rm -rf ${TEST_LOG_DIR}/*
 
 # 接続するJudgeServerのURL
 JUDGE_SERVER_ADDR=http://localhost:5000/warState
@@ -175,8 +175,7 @@ sleep 15
 cp -r ${HOME}/.ros/log "${TEST_LOG_DIR}/ros"
 cp -r ${HOME}/.gazebo/log "${TEST_LOG_DIR}/gazebo"
 cp -r ${HOME}/catkin_ws/src/burger_war_kit/judge/log "${TEST_LOG_DIR}/judge"
-tar czvf ${LOG_ARHCIVE_NAME}.tar.gz -C "${LOG_ROOT_DIR}" "test"
-#mv ${LOG_ARHCIVE_NAME}.tar.gz ${HOME}/catkin_ws/logs/
+tar czvf "${LOG_ROOT_DIR}/${LOG_ARHCIVE_NAME}.tar.gz" -C "${LOG_ROOT_DIR}" ./test
 
 # 終了時のメッセージと状態を出力
 echo "==============================================================================="
