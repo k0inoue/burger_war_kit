@@ -68,8 +68,12 @@ jobs:
     # burger-war-kitrイメージをテストバージョンを正式バージョンとしてリリース
     - name: Push Docker Image
       run: |
+        # テストバージョンの取得
         docker pull ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.test_version }}
-        docker tag ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.test_version }} ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.release_version }}
+        # 正式バージョンとしてリリース
+        docker tag ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.test_version }} \
+                   ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.release_version }}
         docker push ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.release_version }}
-        docker tag ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.test_version }} ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:latest
+        docker tag ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.test_version }} \
+                   ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:latest
         docker push ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:latest
