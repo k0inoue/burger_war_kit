@@ -51,7 +51,7 @@ jobs:
           echo "valid test version"
         else
           echo "invalid test version"
-          echo "invalid test version"
+          exit 1
         fi
 
     # Runs a single command using the runners shell
