@@ -26,7 +26,7 @@ LOG_ARHCIVE_NAME=test_logs
 # ログ出力先
 LOG_ROOT_DIR=${HOME}/catkin_ws/logs
 TEST_LOG_DIR=${LOG_ROOT_DIR}/test
-SIM_JUDGE_LOG="${TEST_LOG_DIR}/sim_with_judge.log"
+SIM_JUDGE_LOG="${TEST_LOG_DIR}/sim_with_judge_nogui.log"
 SIM_START_LOG="${TEST_LOG_DIR}/start_test.log"
 
 # テスト結果初期化
@@ -158,32 +158,46 @@ do
   TIMEOUT_SECOND=$((TIMEOUT_SECOND - 1))
 done
 
-
+# 終了処理
+#------------------------------------------------
 # 得点取得
 BLUE_POINT=$( curl -s ${JUDGE_SERVER_ADDR} | jq .scores.b )
 RED_POINT=$( curl -s ${JUDGE_SERVER_ADDR} | jq .scores.r )
+
+# テスト結果確認
+TEST_RESULT=0
+if ! echo "${BLUE_POINT}" | grep -q -E "^[123456789]"; then
+  TEST_RESULT=1
+fi
+if ! echo "${RED_POINT}" | grep -q -E "^[123456789]"; then
+  TEST_RESULT=1
+fi
+
+RESULT_MESSAGE="\e[32mPASSED.\e[m"
+if [ ${TEST_RESULT} -ne 0 ]; then
+  RESULT_MESSAGE="\e[31mFAILED...\e[m"
+fi
 
 # 子プロセスを落とす
 killpstree ${SIM_START_PID}
 killpstree ${SIM_JUDGE_PID}
 
-# 本プロセスが早く落ちすぎて子プロセスがゾンビ化するため待機する
+# 本プロセスが早く落ちすぎて子プロセスがゾンビ化するため一定時間待機する
 echo "Wait simulator shutdown ..."
 sleep 15
 
 # ログを集める
-cp -r ${HOME}/.ros/log "${TEST_LOG_DIR}/ros"
-cp -r ${HOME}/.gazebo/log "${TEST_LOG_DIR}/gazebo"
-cp -r ${HOME}/catkin_ws/src/burger_war_kit/judge/log "${TEST_LOG_DIR}/judge"
+cp -r "${HOME}/.ros/log" "${TEST_LOG_DIR}/ros"
+cp -r "${HOME}/.gazebo/log" "${TEST_LOG_DIR}/gazebo"
+cp -r "${HOME}/catkin_ws/src/burger_war_kit/judge/log" "${TEST_LOG_DIR}/judge"
 tar czvf "${LOG_ROOT_DIR}/${LOG_ARHCIVE_NAME}.tar.gz" -C "${LOG_ROOT_DIR}" ./test
 
-# 終了時のメッセージと状態を出力
+# 終了時のメッセージを出力
 echo "==============================================================================="
-echo " Simulation Finished!"
+echo -e " SIMULATION RESULT: ${RESULT_MESSAGE}"
 echo "-------------------------------------------------------------------------------"
 echo "  SCORE (blue vs red): ${BLUE_POINT} vs ${RED_POINT}"
 echo "  TEST LOG FILES     : ${LOG_ROOT_DIR}/${LOG_ARHCIVE_NAME}.tar.gz"
 echo "==============================================================================="
 
-# テストPASS
-exit 0
+exit ${TEST_RESULT}
