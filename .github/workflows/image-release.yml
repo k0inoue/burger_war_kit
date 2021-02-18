@@ -10,52 +10,66 @@ on:
     inputs:
       # 試験実施バージョンの指定
       test_version:
-        description: 'Passed test version'
+        description: 'Passed test version (Format: "^test\.[1-9][0-9]*$"")'
         default: test.
         required: true
       # リリースバージョンの指定
       release_version:
-        description: 'Release version'
+        description: 'Release version (Format: "^4\.[0-9]+\.[0-9]+$")'
         default: 4.x.x
         required: true
       # バージョン形式のチェック有無
       check_on:
-        description: 'Check validation input version'
+        description: 'Check validation input version (on/off)'
         default: 'on'
         required: true
 
+# 環境変数の設定
+env:
+  RESISTRY_URL: ghcr.io/${{ github.repository_owner }}
+  IMAGE_NAME: burger-war-kit
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "greet"
   greet:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
+    # テストバージョンのフォーマットチェック
     steps:
-    # Runs a single command using the runners shell
     - name: Check Input Test Version
       if: ${{ github.event.inputs.check_on == 'on' }}
       run: |
         if echo "${{ github.event.inputs.test_version }}" | grep -E "^test\.[1-9][0-9]*$"; then
-          echo "valid test version"
+          echo "Valid test version"
         else
-          echo "invalid test version"
+          echo "Invalid test version"
           exit 1
         fi
 
+    # Releaseバージョンのフォーマットチェック
     - name: Check Input Release Version
       if: ${{ github.event.inputs.check_on == 'on' }}
       run: |
         if echo "${{ github.event.inputs.release_version }}" | grep -E "^4\.[0-9]+\.[0-9]+$"; then
-          echo "valid test version"
+          echo "Valid release version"
         else
-          echo "invalid test version"
+          echo "Invalid release version"
           exit 1
         fi
+  
+    # ghcr.ioにログイン
+    - name: Login to ghrc.io
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ secrets.GHCR_USERNAME }}
+        password: ${{ secrets.GHCR_PASSWORD }}
 
-    # Runs a single command using the runners shell
-    - name: Echo versions
+    # burger-war-kitrイメージをテストバージョンを正式バージョンとしてリリース
+    - name: Push Docker Image
       run: |
-        echo "TEST-VERSION ${{ github.event.inputs.test_version }}"
-        echo "RELEASE-VERSION ${{ github.event.inputs.release_version }}"
+        docker pull ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.test_version }}
+        docker tag ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.test_version }} ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.release_version }}
+        docker push ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.release_version }}
+        docker tag ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.test_version }} ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:latest
+        docker push ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:latest
