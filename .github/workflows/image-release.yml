@@ -8,12 +8,20 @@ on:
   workflow_dispatch:
     # Inputs the workflow accepts.
     inputs:
-      name:
-        # Friendly description to be shown in the UI instead of 'name'
-        description: 'Person to greet'
-        # Default value if no value is explicitly provided
-        default: 'World'
-        # Input has to be provided for the workflow to run
+      # 試験実施バージョンの指定
+      test_version:
+        description: 'Passed test version'
+        default: 'test.'
+        required: true
+      # リリースバージョンの指定
+      release_version:
+        description: 'Release version'
+        default: '4.x.x'
+        required: true
+      # バージョン形式のチェック有無
+      check_on:
+        description: 'Check validation input version'
+        default: ${{ true }}
         required: true
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
@@ -26,5 +34,26 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Runs a single command using the runners shell
-    - name: Send greeting
-      run: echo "Hello ${{ github.event.inputs.name }}"
+    - name: Check Input Test Version
+      if: ${{ github.event.inputs.check_on }}
+      run: |
+        if echo "${{ github.event.inputs.test_version }}" | grep -E "^test\.[1-9][0-9]*$"; then
+          echo "valid test version"
+        else
+          echo "invalid test version"
+        fi
+
+    - name: Check Input Release Version
+      if: ${{ github.event.inputs.check_on }}
+      run: |
+        if echo "${{ github.event.inputs.release_version }}" | grep -E "^4\.[0-9]+\.[0-9]+$"; then
+          echo "valid test version"
+        else
+          echo "invalid test version"
+        fi
+
+    # Runs a single command using the runners shell
+    - name: Echo versions
+      run: |
+        echo "TEST-VERSION ${{ github.event.inputs.test_version }}"
+        echo "RELEASE-VERSION ${{ github.event.inputs.release_version }}"
