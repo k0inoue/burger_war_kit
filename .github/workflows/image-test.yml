@@ -61,7 +61,6 @@ jobs:
           id
           echo UID: $(id -u)
           echo GID: $(id -g)
-          groupadd -g $(id -u) runner
           groupmod -g runner runner
           id
           echo UID: $(id -u)
