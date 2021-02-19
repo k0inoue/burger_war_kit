@@ -44,9 +44,6 @@ jobs:
       # # burger-war-kitイメージのビルド
       - name: Build Docker Image
         run: |
-          id
-          echo UID: $(id -u)
-          echo GID: $(id -g)
           docker build --file ${{ env.DOCKER_FILE }} --tag ${{ env.IMAGE_NAME }} .
 
       # xvfbのインストールと起動
@@ -61,7 +58,7 @@ jobs:
           id
           echo UID: $(id -u)
           echo GID: $(id -g)
-          groupmod -g runner runner
+          sudo groupmod -g runner runner
           id
           echo UID: $(id -u)
           echo GID: $(id -g)
@@ -90,6 +87,7 @@ jobs:
           echo GID: $(id -g)
           docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "id"
           docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "ls -la ~/"
+          docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "ls -la ~/catkin_ws"
           docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "catkin build"
 
       # burger-war-kitのテスト
