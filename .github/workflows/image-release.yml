@@ -46,7 +46,7 @@ jobs:
           echo "Invalid test version"
           exit 1
         fi
-        export TEST_VERSION=${{ github.event.inputs.test_version }}
+        echo "TEST_VERSION=${{ github.event.inputs.test_version }}" >> ${GITHUB_ENV}
 
     # Releaseバージョンのフォーマットチェック
     - name: Check Input Release Version
@@ -58,7 +58,7 @@ jobs:
           echo "Invalid release version"
           exit 1
         fi
-        export RELEASE_VERSION=${{ github.event.inputs.release_version }}
+        echo "RELEASE_VERSION=${{ github.event.inputs.release_version }}" >> ${GITHUB_ENV}
 
   release:
     needs: version-check
