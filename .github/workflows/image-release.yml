@@ -28,11 +28,14 @@ on:
 env:
   RESISTRY_URL: ghcr.io/${{ github.repository_owner }}
   IMAGE_NAME: burger-war-kit
+  TEST_VERSION: test.
+  RELEASE_VERSION: 4.x.x
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  greet:
+  version-check:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' }}
 
     # テストバージョンのフォーマットチェック
     steps:
@@ -45,6 +48,7 @@ jobs:
           echo "Invalid test version"
           exit 1
         fi
+        export TEST_VERSION=${{ github.event.inputs.test_version }}
 
     # Releaseバージョンのフォーマットチェック
     - name: Check Input Release Version
@@ -56,7 +60,19 @@ jobs:
           echo "Invalid release version"
           exit 1
         fi
-  
+        export RELEASE_VERSION=${{ github.event.inputs.release_version }}
+
+  release:
+    needs: version-check
+    runs-on: ubuntu-latest
+
+    steps:
+    # バージョン情報出力
+    - name: Version Info
+      run: |
+        echo TEST_VERSION: ${{ env.TEST_VERSION }}
+        echo RELEASE_VERSION: ${{ env.RELEASE_VERSION }}
+
     # ghcr.ioにログイン
     - name: Login to ghrc.io
       uses: docker/login-action@v1
@@ -69,11 +85,11 @@ jobs:
     - name: Push Docker Image
       run: |
         # テストバージョンの取得
-        docker pull ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.test_version }}
+        docker pull ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ env.TEST_VERSION }}
         # 正式バージョンとしてリリース
-        docker tag ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.test_version }} \
-                   ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.release_version }}
-        docker push ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.release_version }}
-        docker tag ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.test_version }} \
+        docker tag ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ env.TEST_VERSION }} \
+                   ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ env.RELEASE_VERSION }}
+        docker push ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ env.RELEASE_VERSION }}
+        docker tag ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ env.TEST_VERSION }} \
                    ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:latest
         docker push ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:latest
