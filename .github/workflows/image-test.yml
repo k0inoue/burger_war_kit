@@ -76,6 +76,8 @@ jobs:
       # ロボコンプロジェクトのビルド
       - name: Build Robot Programs
         run: |
+          docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "ls -la ~/"
+          docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "ls -la ~/.config/"
           docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "catkin build"
 
       # burger-war-kitのテスト
