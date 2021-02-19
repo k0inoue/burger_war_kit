@@ -54,6 +54,7 @@ jobs:
       # burger-war-kitコンテナ起動
       - name: Launch Docker Container
         run: |
+          id
           mkdir -p ${GITHUB_WORKSPACE}/catkin_ws/logs
           docker run \
             --name ${{ env.IMAGE_NAME }} \

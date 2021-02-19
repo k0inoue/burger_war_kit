@@ -84,6 +84,7 @@ RUN test -f /etc/ros/rosdep/sources.list.d/20-default.list \
     && rm /etc/ros/rosdep/sources.list.d/20-default.list
 RUN rosdep init \
     && gosu ${USERNAME} rosdep update \
+    && mkdir -p /home/${USERNAME}/.config \
     && mkdir -p /home/${USERNAME}/.ros/log \
     && mkdir -p /home/${USERNAME}/.gazebo/log
 
