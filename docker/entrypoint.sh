@@ -6,6 +6,9 @@ DEVELOPER_NAME=developer
 
 if [ "$(id -u)" == "0" ]; then
 
+  echo "HOST_USER_ID: ${HOST_USER_ID}"
+  echo "HOST_GROUP_ID: ${HOST_GROUP_ID}"
+
   echo "RUN USER ID: $(id)"
   echo "DEVELOPER ID: $(gosu ${DEVELOPER_NAME} id)"
 
