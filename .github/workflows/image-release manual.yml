@@ -49,7 +49,7 @@ jobs:
         if echo "${TEST_VERSION}" | grep -E "^test\.[1-9][0-9]*$"; then
           echo "Valid test version"
         else
-          echo "Invalid test version"
+          echo "Invalid test version" >&2
           exit 1
         fi
 
@@ -60,7 +60,7 @@ jobs:
         if echo "${RELEASE_VERSION}" | grep -E "^4\.[0-9]+\.[0-9]+$"; then
           echo "Valid release version"
         else
-          echo "Invalid release version"
+          echo "Invalid release version" >&2
           exit 1
         fi
 
