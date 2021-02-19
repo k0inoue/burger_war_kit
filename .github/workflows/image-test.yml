@@ -43,7 +43,8 @@ jobs:
 
       # # burger-war-kitイメージのビルド
       - name: Build Docker Image
-        run: docker build --file ${{ env.DOCKER_FILE }} --tag ${{ env.IMAGE_NAME }} .
+        run: |
+          docker build --file ${{ env.DOCKER_FILE }} --tag ${{ env.IMAGE_NAME }} .
 
       # xvfbのインストールと起動
       - name: Xvfb install and run
@@ -54,6 +55,7 @@ jobs:
       # burger-war-kitコンテナ起動
       - name: Launch Docker Container
         run: |
+          id
           mkdir -p ${GITHUB_WORKSPACE}/catkin_ws/logs
           docker run \
             --name ${{ env.IMAGE_NAME }} \
@@ -74,6 +76,12 @@ jobs:
       # ロボコンプロジェクトのビルド
       - name: Build Robot Programs
         run: |
+          id
+          echo UID: $(id -u)
+          echo GID: $(id -g)
+          docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "id"
+          docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "ls -la ~/"
+          docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "ls -la ~/catkin_ws"
           docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "catkin build"
 
       # burger-war-kitのテスト
@@ -103,3 +111,13 @@ jobs:
         run: |
           docker tag ${{ env.IMAGE_NAME }} ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ env.TEST_VERSION }}
           docker push ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ env.TEST_VERSION }}
+          echo "${{ env.TEST_VERSION }}" > TEST_VERSION
+      
+      # テストにパスしたバージョン情報をコミット
+      - name: Update Passed Test Version
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          file_pattern: TEST_VERSION
+          branch: ${{ github.ref }}
+          commit_message: Passed Test Version(#${{ github.run_number }}) Update.
+          skip_fetch: false

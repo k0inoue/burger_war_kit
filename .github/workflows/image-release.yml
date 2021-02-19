@@ -1,9 +1,8 @@
-# This is a basic workflow that is manually triggered
+# mainブランチへのプルリクエストマージ時に、テストにパスしたkitイメージにバージョンを付与する
 
 name: Auto Release Kit Image
 
-# Controls when the action will run. Workflow runs when manually triggered using the UI
-# or API.
+# 実行トリガの定義
 on:
 
   # 自動で実行する場合(プルリクエストのマージ時)
@@ -15,12 +14,12 @@ on:
       - 'TEST_VERSION'
       - 'RELEASE_VERSION'
 
-# 環境変数の設定
+# 環境変数の定義
 env:
   RESISTRY_URL: ghcr.io/${{ github.repository_owner }}
   IMAGE_NAME: burger-war-kit
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+# 実行処理の定義
 jobs:
   image-release:
     if: github.event.pull_request.merged == true
