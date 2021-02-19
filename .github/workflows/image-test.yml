@@ -105,3 +105,11 @@ jobs:
           docker tag ${{ env.IMAGE_NAME }} ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ env.TEST_VERSION }}
           docker push ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ env.TEST_VERSION }}
           echo "${{ env.TEST_VERSION }}" > TEST_VERSION
+      
+      # テストにパスしたバージョン情報をコミット
+      - name: Update Passed Test Version
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          file_pattern: TEST_VERSION
+          branch: ${{ github.ref }}
+          commit_message: Passed Test Version(#${{ github.run_number }}) Update.
