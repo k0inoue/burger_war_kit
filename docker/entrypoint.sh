@@ -14,12 +14,14 @@ if [ "$(id -u)" == "0" ]; then
 
   if [ "${HOST_USER_ID}" != "$(gosu ${DEVELOPER_NAME} id -u)" ]; then
     # ホストPCとUSER ID/GROUP IDを合わせる(ファイルアクセスできなくなる為)
+    set -x
     echo "DEVELOPER ID1: $(gosu ${DEVELOPER_NAME} id)"
     usermod -u ${HOST_USER_ID} -o -m -d /home/${DEVELOPER_NAME} ${DEVELOPER_NAME}
     echo "DEVELOPER ID2: $(gosu ${DEVELOPER_NAME} id)"
     groupmod -g ${HOST_GROUP_ID} ${DEVELOPER_NAME}
     chown -R ${DEVELOPER_NAME}:${DEVELOPER_NAME} /home/${DEVELOPER_NAME}
     echo "DEVELOPER ID3: $(gosu ${DEVELOPER_NAME} id)"
+    set +x
   fi
 
   su - ${DEVELOPER_NAME}

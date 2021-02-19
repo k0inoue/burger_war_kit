@@ -120,3 +120,4 @@ jobs:
           file_pattern: TEST_VERSION
           branch: ${{ github.ref }}
           commit_message: Passed Test Version(#${{ github.run_number }}) Update.
+          skip_fetch: false
