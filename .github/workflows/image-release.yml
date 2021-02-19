@@ -46,7 +46,7 @@ jobs:
           echo "Invalid test version"
           exit 1
         fi
-        echo "TEST_VERSION=${{ github.event.inputs.test_version }}" >> ${GITHUB_ENV}
+        echo "TEST_VERSION=${{ github.event.inputs.test_version }}" >> $GITHUB_ENV
 
     # Releaseバージョンのフォーマットチェック
     - name: Check Input Release Version
@@ -58,7 +58,7 @@ jobs:
           echo "Invalid release version"
           exit 1
         fi
-        echo "RELEASE_VERSION=${{ github.event.inputs.release_version }}" >> ${GITHUB_ENV}
+        echo "RELEASE_VERSION=${{ github.event.inputs.release_version }}" >> $GITHUB_ENV
 
   release:
     needs: version-check
@@ -68,8 +68,8 @@ jobs:
     # バージョン情報出力
     - name: Version Info
       run: |
-        echo TEST_VERSION: ${TEST_VERSION}
-        echo RELEASE_VERSION: ${RELEASE_VERSION}
+        echo TEST_VERSION: $TEST_VERSION
+        echo RELEASE_VERSION: $RELEASE_VERSION
 
     # ghcr.ioにログイン
     - name: Login to ghrc.io
