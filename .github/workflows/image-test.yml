@@ -58,10 +58,6 @@ jobs:
           id
           echo UID: $(id -u)
           echo GID: $(id -g)
-          sudo groupmod -g runner runner
-          id
-          echo UID: $(id -u)
-          echo GID: $(id -g)
           mkdir -p ${GITHUB_WORKSPACE}/catkin_ws/logs
           docker run \
             --name ${{ env.IMAGE_NAME }} \
