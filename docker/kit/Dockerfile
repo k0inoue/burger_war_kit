@@ -111,7 +111,7 @@ RUN cat /home/${USERNAME}/export_env \
           >> /home/${USERNAME}/.bash_profile \
     && rm /home/${USERNAME}/export_env
 
-RUN chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/ /home/${USERNAME}/.*
+RUN chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/
 
 # 環境変数の設定
 ENV TZ Asia/Tokyo
