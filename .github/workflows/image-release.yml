@@ -60,13 +60,19 @@ jobs:
         fi
         echo "RELEASE_VERSION=${{ github.event.inputs.release_version }}" >> $GITHUB_ENV
 
+    # バージョン情報出力
+    - name: Version Info1
+      run: |
+        echo TEST_VERSION: $TEST_VERSION
+        echo RELEASE_VERSION: $RELEASE_VERSION
+
   release:
     needs: version-check
     runs-on: ubuntu-latest
 
     steps:
     # バージョン情報出力
-    - name: Version Info
+    - name: Version Info2
       run: |
         echo TEST_VERSION: $TEST_VERSION
         echo RELEASE_VERSION: $RELEASE_VERSION
