@@ -103,3 +103,4 @@ jobs:
         run: |
           docker tag ${{ env.IMAGE_NAME }} ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ env.TEST_VERSION }}
           docker push ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${{ env.TEST_VERSION }}
+          echo "${{ env.TEST_VERSION }}" > TEST_VERSION
