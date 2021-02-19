@@ -43,7 +43,11 @@ jobs:
 
       # # burger-war-kitイメージのビルド
       - name: Build Docker Image
-        run: docker build --file ${{ env.DOCKER_FILE }} --tag ${{ env.IMAGE_NAME }} .
+        run: |
+          id
+          echo UID: $(id -u)
+          echo GID: $(id -g)
+          docker build --file ${{ env.DOCKER_FILE }} --tag ${{ env.IMAGE_NAME }} .
 
       # xvfbのインストールと起動
       - name: Xvfb install and run
@@ -54,6 +58,7 @@ jobs:
       # burger-war-kitコンテナ起動
       - name: Launch Docker Container
         run: |
+          id
           echo UID: $(id -u)
           echo GID: $(id -g)
           mkdir -p ${GITHUB_WORKSPACE}/catkin_ws/logs
@@ -76,8 +81,11 @@ jobs:
       # ロボコンプロジェクトのビルド
       - name: Build Robot Programs
         run: |
+          id
+          echo UID: $(id -u)
+          echo GID: $(id -g)
+          docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "id"
           docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "ls -la ~/"
-          docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "ls -la ~/.config/"
           docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "catkin build"
 
       # burger-war-kitのテスト
