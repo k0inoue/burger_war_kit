@@ -26,6 +26,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # 環境準備
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
     # ファイルからバージョン情報取得
     - name: Set Version When Not Manual
       if: github.event_name != 'workflow_dispatch'
