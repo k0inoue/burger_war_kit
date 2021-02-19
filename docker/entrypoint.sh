@@ -7,7 +7,7 @@ DEVELOPER_NAME=developer
 if [ "$(id -u)" == "0" ]; then
 
   echo "ID: $(id)"
-  echo "ID: $(gosu ${DEVELOPER_NAME} id -u)"
+  echo "ID: $(gosu ${DEVELOPER_NAME} id)"
 
   if [ "${HOST_USER_ID}" != "$(gosu ${DEVELOPER_NAME} id -u)" ]; then
     # ホストPCとUSER ID/GROUP IDを合わせる(ファイルアクセスできなくなる為)
