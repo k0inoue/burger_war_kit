@@ -1,0 +1,94 @@
+# This is a basic workflow that is manually triggered
+
+name: Kit Docker Image Release by Manual
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
+on:
+  # 手動で実行する場合
+  workflow_dispatch:
+    inputs:
+      # 試験実施バージョンの指定
+      test_version:
+        description: 'Passed test version (Format: "^test\.[1-9][0-9]*$"")'
+        default: test.
+        required: true
+      # リリースバージョンの指定
+      release_version:
+        description: 'Release version (Format: "^4\.[0-9]+\.[0-9]+$")'
+        default: 4.x.x
+        required: true
+      # バージョン形式のチェック有無
+      check_on:
+        description: 'Check validation input version (on/off)'
+        default: 'on'
+        required: true
+
+# 環境変数の設定
+env:
+  RESISTRY_URL: ghcr.io/${{ github.repository_owner }}
+  IMAGE_NAME: burger-war-kit
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  image-release:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 入力値からバージョン情報取得
+    - name: Set Version When Not Manual
+      if: github.event_name == 'workflow_dispatch'
+      run: |
+        echo "TEST_VERSION=${{ github.event.inputs.test_version }}" >> ${GITHUB_ENV}
+        echo "RELEASE_VERSION=${{ github.event.inputs.release_version }}" >> ${GITHUB_ENV}
+
+    # テストバージョンのフォーマットチェック
+    - name: Check Input Test Version
+      if: ${{ github.event.inputs.check_on }} == 'on'
+      run: |
+        if echo "${TEST_VERSION}" | grep -E "^test\.[1-9][0-9]*$"; then
+          echo "Valid test version"
+        else
+          echo "Invalid test version"
+          exit 1
+        fi
+
+    # Releaseバージョンのフォーマットチェック
+    - name: Check Input Release Version
+      if: ${{ github.event.inputs.check_on }} == 'on'
+      run: |
+        if echo "${RELEASE_VERSION}" | grep -E "^4\.[0-9]+\.[0-9]+$"; then
+          echo "Valid release version"
+        else
+          echo "Invalid release version"
+          exit 1
+        fi
+
+    # バージョン情報出力
+    - name: Print Version
+      run: |
+        echo TEST_VERSION: ${TEST_VERSION}
+        echo RELEASE_VERSION: ${RELEASE_VERSION}
+  
+    # ghcr.ioにログイン
+    - name: Login to ghrc.io
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ secrets.GHCR_USERNAME }}
+        password: ${{ secrets.GHCR_PASSWORD }}
+
+    # テストバージョンの取得
+    - name: Pull Test Version Image
+      run: |
+        docker pull ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${TEST_VERSION}
+
+    # テストバージョンを正式バージョンとしてリリース
+    - name: Push Official Image
+      run: |
+        docker tag ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${TEST_VERSION} \
+                   ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${RELEASE_VERSION}
+        docker push ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${RELEASE_VERSION}
+        docker tag ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${TEST_VERSION} \
+                   ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:latest
+        docker push ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:latest
