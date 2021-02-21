@@ -1,0 +1,90 @@
+# mainブランチへのプルリクエストマージ時に、テストにパスしたkitイメージにバージョンを付与する
+
+name: Auto Release Kit Image
+
+# 実行トリガの定義
+on:
+
+  # 自動で実行する場合(プルリクエストのマージ時)
+  pull_request:
+    branches:
+      - main
+    types: [closed]
+    paths:
+      - 'TEST_VERSION'
+      - 'RELEASE_VERSION'
+
+  # 手動で実行する場合(for test)
+  workflow_dispatch:
+
+# 環境変数の定義
+env:
+  RESISTRY_URL: ghcr.io/${{ github.repository_owner }}
+  IMAGE_NAME: burger-war-kit
+
+# 実行処理の定義
+jobs:
+  image-release:
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+
+    steps:
+    # 環境準備
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    # ファイルからバージョン情報取得
+    - name: Set Version When Not Manual
+      # if: github.event_name != 'workflow_dispatch'
+      run: |
+        echo "TEST_VERSION=`head -n 1 ./TEST_VERSION`" >> ${GITHUB_ENV}
+        echo "RELEASE_VERSION=`head -n 1 ./RELEASE_VERSION`" >> ${GITHUB_ENV}
+
+    # テストバージョンのフォーマットチェック
+    - name: Check Input Test Version
+      run: |
+        if echo "${TEST_VERSION}" | grep -E "^test\.[1-9][0-9]*$"; then
+          echo "Valid test version"
+        else
+          echo "Invalid test version"
+          exit 1
+        fi
+
+    # Releaseバージョンのフォーマットチェック
+    - name: Check Input Release Version
+      run: |
+        if echo "${RELEASE_VERSION}" | grep -E "^4\.[0-9]+\.[0-9]+$"; then
+          echo "Valid release version"
+        else
+          echo "Invalid release version"
+          exit 1
+        fi
+
+    # バージョン情報出力
+    - name: Print Version
+      run: |
+        echo TEST_VERSION: ${TEST_VERSION}
+        echo RELEASE_VERSION: ${RELEASE_VERSION}
+  
+    # ghcr.ioにログイン
+    - name: Login to ghcr.io
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ secrets.GHCR_USERNAME }}
+        password: ${{ secrets.GHCR_PASSWORD }}
+
+    # テストバージョンの取得
+    - name: Pull Test Version Image
+      run: |
+        docker pull ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${TEST_VERSION}
+
+    # テストバージョンを正式バージョンとしてリリース
+    - name: Push Official Image
+      run: |
+        docker tag ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${TEST_VERSION} \
+                   ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${RELEASE_VERSION}
+        docker push ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${RELEASE_VERSION}
+        docker tag ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${TEST_VERSION} \
+                   ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:latest
+        docker push ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:latest
