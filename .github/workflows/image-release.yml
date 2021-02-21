@@ -25,7 +25,7 @@ env:
 # 実行処理の定義
 jobs:
   image-release:
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 
     steps:
@@ -35,7 +35,7 @@ jobs:
 
     # ファイルからバージョン情報取得
     - name: Set Version When Not Manual
-      if: github.event_name != 'workflow_dispatch'
+      # if: github.event_name != 'workflow_dispatch'
       run: |
         echo "TEST_VERSION=`head -n 1 ./TEST_VERSION`" >> ${GITHUB_ENV}
         echo "RELEASE_VERSION=`head -n 1 ./RELEASE_VERSION`" >> ${GITHUB_ENV}
@@ -67,7 +67,7 @@ jobs:
         echo RELEASE_VERSION: ${RELEASE_VERSION}
   
     # ghcr.ioにログイン
-    - name: Login to ghrc.io
+    - name: Login to ghcr.io
       uses: docker/login-action@v1
       with:
         registry: ghcr.io
