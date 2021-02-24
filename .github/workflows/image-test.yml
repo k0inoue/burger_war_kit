@@ -44,7 +44,7 @@ jobs:
       # Dockerのversion確認
       - name: Print Docker Version
         run: |
-          docker build --file ${{ env.DOCKER_FILE }} --tag ${{ env.IMAGE_NAME }} .
+          docker version
 
       # burger-war-kitイメージのビルド
       - name: Build Docker Image
