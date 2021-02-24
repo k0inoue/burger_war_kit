@@ -88,7 +88,8 @@ RUN rosdep init \
     && gosu ${USERNAME} rosdep update \
     && mkdir -p /home/${USERNAME}/.config/catkin/verb_aliases \
     && mkdir -p /home/${USERNAME}/.ros/log \
-    && mkdir -p /home/${USERNAME}/.gazebo/log
+    && mkdir -p /home/${USERNAME}/.gazebo/log \
+    && chmod -R 777 /home/${USERNAME}/.config
 
 # ワークスペース作成
 #------------------------------------------------
