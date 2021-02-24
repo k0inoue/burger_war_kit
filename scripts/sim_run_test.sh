@@ -139,7 +139,7 @@ do
   TIMEOUT_SECOND=$((TIMEOUT_SECOND - 1)) 
 done
 
-sleep 10
+sleep 5
 
 # シミュレーション開始
 (bash ${SCRIPT_DIR}/start_test.sh  > "${SIM_START_LOG}" 2>&1) &
@@ -148,7 +148,7 @@ SIM_START_PID=$!
 sleep 1
 
 # JudgeServerを最前面へ
-wmctrl -r "burger war" -b add,above
+#wmctrl -r "burger war" -b add,above
 
 # シミュレーション終了待ち
 TIMEOUT_SECOND=600
