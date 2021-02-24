@@ -34,7 +34,7 @@ jobs:
   # ビルドとテストを実施し、テストにPASSすれば、仮バージョンでプッシュ
   build-test:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
       # 環境準備
