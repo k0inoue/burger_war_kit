@@ -16,7 +16,7 @@ fi
 # run judge server and visualize window
 (python judge/judgeServer.py)&
 sleep 1
-(python judge/JudgeWindow.py -t >/dev/null 2>&1)&
+(python judge/JudgeWindow.py -t)&
 
 # init judge server for sim setting
 bash judge/test_scripts/init_single_play.sh judge/marker_set/sim.csv localhost:5000  $RED_NAME $BLUE_NAME

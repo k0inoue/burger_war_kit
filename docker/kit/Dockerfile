@@ -34,7 +34,6 @@ RUN apt-get update -q && apt-get install -y --no-install-recommends \
         python-catkin-tools \
         jq \
         scrot \
-        wmctrl \
     && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update -q && apt-get install -y --no-install-recommends \
