@@ -147,10 +147,6 @@ SIM_START_PID=$!
 
 sleep 1
 
-# JudgeServerを最前面へ
-gnome-terminal -- python judge/JudgeWindow.py
-#wmctrl -r "burger war" -b add,above
-
 # シミュレーション終了待ち
 TIMEOUT_SECOND=600
 while [ ${TIMEOUT_SECOND} -gt 0 ]
