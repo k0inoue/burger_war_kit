@@ -139,7 +139,7 @@ do
   TIMEOUT_SECOND=$((TIMEOUT_SECOND - 1)) 
 done
 
-sleep 5
+sleep 10
 
 # シミュレーション開始
 (bash ${SCRIPT_DIR}/start_test.sh  > "${SIM_START_LOG}" 2>&1) &
