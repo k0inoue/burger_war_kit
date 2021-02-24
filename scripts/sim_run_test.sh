@@ -27,7 +27,7 @@ LOG_ARHCIVE_NAME=test_logs
 LOG_ROOT_DIR=${HOME}/catkin_ws/logs
 TEST_LOG_DIR=${LOG_ROOT_DIR}/test
 SCREENSHOT_DIR=${TEST_LOG_DIR}/screenshot
-SIM_JUDGE_LOG="${TEST_LOG_DIR}/sim_with_judge_nogui.log"
+SIM_JUDGE_LOG="${TEST_LOG_DIR}/sim_with_test.log"
 SIM_START_LOG="${TEST_LOG_DIR}/start_test.log"
 
 # テスト結果初期化
@@ -115,7 +115,7 @@ echo "==========================================================================
 echo " Simulator Startup"
 echo "==============================================================================="
 # シミュレータ起動
-(bash ${SCRIPT_DIR}/sim_with_judge.sh > "${SIM_JUDGE_LOG}" 2>&1) &
+(bash ${SCRIPT_DIR}/sim_with_test.sh > "${SIM_JUDGE_LOG}" 2>&1) &
 SIM_JUDGE_PID=$!
 
 # judgeサーバーが立ち上がるまでの仮待機(時間は要調整)
@@ -147,29 +147,34 @@ SIM_START_PID=$!
 
 sleep 1
 
+# JudgeServerを最前面へ
+wmctrl -r "burger war" -b add,above
+
 # シミュレーション終了待ち
 TIMEOUT_SECOND=600
 while [ ${TIMEOUT_SECOND} -gt 0 ]
 do
+  # ループ周期
   sleep 10 &
   sleep_id=$!
+  # 標準出力へのログ出力
   curl -s ${JUDGE_SERVER_ADDR} | jq -c '. | { time:.time, state:.state, ready:.ready, scores:.scores }'
+  real_time=$(curl -s ${JUDGE_SERVER_ADDR} | jq '.time' | sed 's/\(.*\)\..*$/\1/')
   sim_time=$(rostopic echo -n 1 /clock| sed -n '/\ssecs:/s/^.*:\s*\(.*\)$/\1/p')
   echo "SIM TIME: ${sim_time} sec"
+  # 画面キャプチャ
   screenshot_file=$(printf %03d ${sim_time})sec.png
   scrot ${SCREENSHOT_DIR}/${screenshot_file}
   if ! ( curl -s ${JUDGE_SERVER_ADDR} | jq .state | grep -c 'running' > /dev/null ) ; then
     # シミュレーション状態が実施中以外になった場合
     break
-  elif [ ${sim_time} -ge 185 ]; then
-    # GazeboのSim Timeで３分経過した場合
-    if curl -s ${JUDGE_SERVER_ADDR} | jq '.time' | grep -E '^1[89][0123456789]\.'; then
-      # JudgeServerの時間も３分経過した場合
-      break
-    fi
+  elif [ ${sim_time} -ge 180 -a ${real_time} -ge 180 ]; then
+    # GazeboのSim TimeとJudgeServerの試合時間が３分経過した場合
+    break
   fi
+  TIMEOUT_SECOND=$((TIMEOUT_SECOND - 10))
+  # 待機
   wait ${sleep_id}
-  TIMEOUT_SECOND=$((TIMEOUT_SECOND - 5))
 done
 
 # 終了処理

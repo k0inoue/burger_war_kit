@@ -14,15 +14,15 @@ fi
 
 # judge
 # run judge server and visualize window
-(python judge/judgeServer.py --mt 180 --et 60)&
+(python judge/judgeServer.py)&
 sleep 1
 #gnome-terminal -e "python judge/visualizeWindow.py"
-#gnome-terminal -- python judge/JudgeWindow.py
+gnome-terminal -- python judge/JudgeWindow.py
 
 # init judge server for sim setting
 bash judge/test_scripts/init_single_play.sh judge/marker_set/sim.csv localhost:5000  $RED_NAME $BLUE_NAME
 
 # robot
-roslaunch burger_war setup_sim.launch gui:=false record:=true
+roslaunch burger_war setup_sim.launch gui:=true record:=true
 
 
