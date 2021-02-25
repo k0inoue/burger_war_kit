@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+set -x
 
 # DEVELOPER_NAMEはdocker build時に置き換える
 DEVELOPER_NAME=developer
