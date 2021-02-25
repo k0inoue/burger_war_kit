@@ -22,8 +22,15 @@ burger_war_kitリポジトリでは、[burger_war_dev](https://github.com/p-robo
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-## Dockerイメージの構成
+<br />
 
+## Dockerfileの構成
+本リポジトリと[burger_war_dev](https://github.com/p-robotics-hub/burger_war_dev)のDockerfileを合わせた継承関係は以下となります。  
+
+![Dockerfile構成](https://user-images.githubusercontent.com/76457573/109110935-668afe80-777b-11eb-9e10-9ea9a1a459e2.png)
+
+本リポジトリで扱うのは、図中の「burger_war_kit」です。  
+他のイメージについては、burger_war_devリポジトリに含まれています。
 
 <br />
 
@@ -32,20 +39,29 @@ burger-war-kitイメージの作成に関連するファイルは以下となり
 
 ```
 burger_war_kit
+|-- .github/workflows
+|   |-- image-release.yml         ... burger-war-kitイメージに正式バージョンを付与するworkflowファイル
+|   |-- image-test.yml            ... burger-war-kitイメージを自動ビルド＆テストするworkflowファイル
+|   |-- update_toc.yml            ... ドキュメントの目次を作成・更新するworkflowファイル
 |-- commands
-|   |-- config.sh               ... 共通設定ファイル
-|   |-- docker-build.sh         ... Dockerイメージをビルドするためのスクリプト
-|   |-- docker-launch.sh        ... Dockerイメージからコンテナを起動するためのスクリプト
-|   |-- docker-login.sh         ... ghcr.ioにログインするためのスクリプト
-|   |-- docker-push.sh          ... pushするためのスクリプト
+|   |-- config.sh                 ... 各スクリプトで参照する共通設定ファイル
+|   |-- docker-build.sh           ... Dockerイメージをビルドするためのスクリプト
+|   |-- docker-launch.sh          ... Dockerイメージからコンテナを起動するためのスクリプト
+|   |-- docker-login.sh           ... ghcr.ioにログインするためのスクリプト
+|   |-- docker-push.sh            ... pushするためのスクリプト
+|   |-- kit.sh                    ... burger-war-kitコンテナ上でコマンドを実行するためのスクリプト
 |-- doc
-|   |-- FOR_MAINTAINER.md       ... 本ドキュメント
+|   |-- FOR_MAINTAINER.md         ... 本ドキュメント
 |-- docker
-|   |-- entrypoint.sh           ... DockerのENTRYPOINTで指定する実行スクリプト
+|   |-- entrypoint.sh             ... DockerのENTRYPOINTで指定する実行スクリプト
 |   |-- kit
-|   |   |-- Dockerfile          ... burger-war-kitイメージを作成するためのDockerfile
-|   |-- templates
-|   |   |-- export_env          ... コンテナ内のユーザーに必要な設定(`.bash_profile`と`.bashrc`に追記する内容)
+|   |   |-- Dockerfile            ... burger-war-kitイメージを作成するためのDockerfile
+|   |-- templates                 ... docker build時に/home/developer直下にコピーするファイル群
+|   |   |-- .gazebo
+|   |   |   |-- gui.ini           ... Gazeboのウィンドウ配置設定用(自動テストで使用)
+|   |   |-- .ignition/fuel
+|   |   |   |-- config.yaml       ... Gazebo起動時に出るエラーを抑制するための設定ファイル
+|   |   |-- export_env            ... コンテナ内のユーザーに必要な設定(`.bash_profile`と`.bashrc`に追記する内容)
 ```
 
 <br />
@@ -53,22 +69,230 @@ burger_war_kit
 ## 開発の流れ
 基本的な開発の流れは以下になります。
 
-1. Dockerfileの修正
+1. burger-war-kitイメージに影響があるファイルの修正(Dockerfileなど)
 2. burger-war-kitイメージのビルド
-3. burger-war-kitコンテナの動作確認
+3. burger-war-kitイメージの動作確認
    - 問題があれば1に戻る
-4. 修正したソースコード(Dockerfileなど)をGitHubにプッシュ
-5. burger-war-kitイメージをバージョン指定してghcr.ioにプッシュ
-6. プッシュしたburger-war-kitイメージを使ってburger-war-devで動作確認
+4. 修正したDockerfileなどをGitHubにプッシュ
+5. GitHub Actionsによる自動ビルド＆テスト
    - 問題があれば1に戻る
-7. burger-war-kitイメージを最新版(latest)としてghcr.ioにプッシュ
+6. GitHub Actionsでビルドされたburger-war-kitイメージ(テスト版)を使って動作確認
+   - 問題があれば1に戻る
+7. 開発者はdevブランチにプルリクエスト
+   - リポジトリ管理者がdevへマージ時に、自動テスト実施
+8. devブランチで動作確認
+   - burger-war-devイメージでも動作確認を行う
+   - 問題があれば1に戻る
+9. リポジトリ管理者がmainにマージ
+10. burger-war-kitイメージをリリース(burger-war-kitイメージ(テスト版)にlatestタグを付与)
 
 <br />
 
-## 事前準備
+以降で具体的な手順について説明します。
 
-### Personal access token の作成
-burger-war-kitイメージをghcr.ioにプッシュするためには、各自のGitHubアカウントで`Personal access token`を作成する必要があります。
+特に記載がない場合は、いずれの手順もburger_war_kitのルートディレクトリに移動して実行する想定で記載しています。
+
+```bash 
+cd $HOME/catkin_ws/src/burger_war_kit
+```
+
+<br />
+
+## 1. bburger-war-kitイメージに影響があるファイルの修正(Dockerfileなど)
+
+<br />
+
+## 2. burger-war-kitイメージのビルド
+修正したDockerfileをビルドしてburger-war-kitイメージを作成するには、以下のコマンドを実行して下さい。
+
+```bash
+bash commands/docker-build.sh
+```
+
+イメージに任意のバージョン(Dockerのタグ)を付与したい場合は、`-v`オプションでバージョンを指定して下さい。  
+以下は、`test`というバージョンを指定する例です。
+
+```bash
+bash commands/docker-build.sh -v test
+```
+
+`-v`を使用しなかった場合のバージョンは`latest`となります。
+
+<br />
+
+## 3. burger-war-kitイメージの動作確認
+### 3.1 コンテナの起動
+-------------------------------------------------------------------------------
+ビルドして作成したイメージからコンテナを起動するには、以下のコマンドを実行して下さい。
+
+```bash
+bash commands/docker-launch.sh
+```
+
+任意のバージョンのイメージからコンテナを起動したい場合は、`-v`オプションでバージョンを指定して下さい。  
+以下は、`test`というバージョンを指定する例です。
+
+```bash
+bash commands/docker-launch.sh -v test
+```
+
+起動するコンテナ名は`burger-war-kit`となります。
+
+<br />
+
+### 3.2 コンテナ内でコマンドを実行
+-------------------------------------------------------------------------------
+コンテナ起動後は、以下のようにしてコンテナ内で任意のコマンドを実行できます。  
+`-c`オプションの後に実行したいコマンドを指定して下さい。  
+
+```bash
+bash commands/kit.sh -c catkin build
+```
+
+コマンド実行時の作業ディレクトリは、`/home/developer/catkin_ws`になります。
+
+何も引数を指定しなかった場合は、コンテナ内で`bash`を起動します。
+
+```bash
+bash commands/kit.sh
+```
+
+<br />
+
+### 3.3 scriptsディレクトリ配下のスクリプトを実行する
+-------------------------------------------------------------------------------
+scriptsディレクトリ配下のスクリプトを実行したい場合は、`-s`オプションで実行するスクリプトを指定して下さい。
+
+```bash
+bash commands/kit.sh -s sim_width_judge.sh
+```
+
+コマンド実行時の作業ディレクトリは、`/home/developer/catkin_ws/burger_war_kit`になります。
+
+<br />
+
+## 4. 修正したDockerfileなどをGitHubにプッシュ
+-------------------------------------------------------------------------------
+GitHubへのプッシュなどの操作は、`git`コマンドで行っても構いませんが、VSCodeを使用すると楽になるかもしません。
+
+以下のサイトなどを参考にして下さい。
+
+[VSCodeでのGitの基本操作まとめ - Qiita](https://qiita.com/y-tsutsu/items/2ba96b16b220fb5913be)
+
+<br />
+
+## 5. GitHub Actionsによる自動ビルド＆テスト
+### 5.1 自動ビルド・テストの実行トリガ
+-------------------------------------------------------------------------------
+自動ビルド＆テストは、以下のファイルの修正をプッシュした際に実行されます。
+
+- `docker/**`
+- `scripts/**`
+- `judge/**`
+- `burger_war/**`
+- `.github/workflows/image-test.yml`
+  
+自動ビルド＆テストは、どのブランチへプッシュしても実行されます。
+
+<br />
+
+### 5.2 自動ビルド・テストで行っている処理
+-------------------------------------------------------------------------------
+GitHub Actionsで行う処理は、主な処理は以下になります。
+
+1. burger-war-kitイメージのビルド(`docker build`)
+2. 仮想ディスプレイの起動(`Xvfb`)
+3. burger-war-kitコンテナ起動(`docker run`)
+4. ロボコンプロジェクトのビルド(`catkin build`)
+5. burger-war-kitのテスト(`scripts/sim_run_test.sh`)
+6. テスト実行ログの保存(`GitHub Artifact`)
+7. burger-war-kitrイメージをテスト版としてプッシュ(`docker push`)
+8. テストにパスしたバージョンをファイルに保存(`TEST_VERSION`)
+
+実際の処理は`.github/workflows/image-test.yml`を参照して下さい。
+
+<br />
+
+### 5.3 判定方法とログファイル
+-------------------------------------------------------------------------------
+
+<br />
+
+## 6. GitHub Actionsでビルドされたburger-war-kitイメージ(テスト版)を使って動作確認
+### 6.1 テスト版のburger-war-kitイメージを取得
+-------------------------------------------------------------------------------
+以下のコマンドで、テストにパスしたburger-war-kitイメージを取得して下さい。  
+末尾の`test.XXX`の`XXX`には、実際にテストを実行したGitHub Actionsの番号(#XXX)を指定して下さい。
+
+```
+docker pull ghcr.io/p-robotics-hub/burger-war-kit:test.XXX
+```
+
+例えば、以下のGitHub Actionsでテストを実施したburger-war-kitイメージは`test.4`となります。  
+(ページ見出しの`Kit Docker Image Build & Test #4`の`#`以降の番号)
+
+[自動テストのサンプルページ](https://github.com/p-robotics-hub/burger_war_kit/actions/runs/577614010)
+
+実際にプッシュされているburger-war-kitイメージのバージョンは、以下のページで確認できます。
+
+[ghcr.ioでのburger-war-kitイメージ](https://github.com/orgs/p-robotics-hub/packages/container/package/burger-war-kit)
+
+<br />
+
+### 6.2 burger-war-kitイメージの動作確認
+-------------------------------------------------------------------------------
+コンテナ起動時に`-r`(ghcr.ioからプル)を指定し、`-v`で動作を確認したいテストバージョンを指定して下さい。
+
+```
+bash commands/docker-launch.sh -r -v test.4
+```
+
+あとは、通常の操作(kit.shなど)で動作確認が行って下さい。
+
+<br />
+
+### 6.3 burger-war-devイメージの動作確認
+-------------------------------------------------------------------------------
+`$HOME/catkin_ws/src/burger_war_dev`へ移動して、以下のように、`-k`でテストバージョンを指定して下さい。
+
+```
+bash commands/docker-build.sh -k test.4
+```
+
+あとは、通常通りコンテナを起動して動作確認を行って下さい。
+
+```
+bash commands/docker-launch.sh
+```
+
+<br />
+
+## 7. burger-war-kitイメージをリリース
+以下のページを開いて下さい。
+
+[burger_war_kitのworkflows](https://github.com/p-robotics-hub/burger_war_kit/actions)
+
+開いたページ右側の「Workflows」から「Release Kit Image」を選択して、「Run workflow」をクリックすると、以下のように必要な情報の入力フォームが表示されます。
+
+![リリース用workflow](https://user-images.githubusercontent.com/76457573/109125137-0d2cca80-778f-11eb-9716-0d4e50eca375.png)
+
+
+以下の必要な項目を設定して、「Run workflow」をクリックして下さい。
+
+- Use workflow form： workflowを実行するブランチを指定(通常はmainを選択して下さい)
+- テスト実施バージョン： バージョンを付与するテスt実施バージョン(`test.N`)を指定して下さい
+- 付与するリリースバージョン： `4.N.n`の形式でバージョンを指定して下さい
+- latestバージョンを付与するか： `yes`指定時、`latest`バージョンとして公開します
+- 入力値のFormatチェックを行うか： `yes`指定時、誤ったバージョンの付与を防ぐ為、入力されたバージョンのFormatをチェックします
+
+burger-war-kitイメージを`latest`バージョンとして公開した後は、burger_war_devで利用されるようになります。
+
+
+## 補足
+### A. Personal access token の作成
+-------------------------------------------------------------------------------
+
+burger-war-kitイメージをdocker-push.shを使用してghcr.ioにプッシュするためには、各自のGitHubアカウントで`Personal access token`を作成する必要があります。
 
 以下の手順に従って、[こちらのページ](https://github.com/settings/tokens)から作成して下さい。
 
@@ -95,7 +319,7 @@ burger-war-kitイメージをghcr.ioにプッシュするためには、各自�
 
 <br />
 
-#### 4. 生成された Personal access token をファイルに保存
+##### 4. 生成された Personal access token をファイルに保存
 
 以下のコマンドを実行して、`Personal access token`を保存するファイルを作成して下さい。
 
@@ -112,51 +336,12 @@ chmod 600 $HOME/.github-token
 
 <br />
 
-## コマンド
-以下の操作については、専用のスクリプトを用意しています。
+### B. 手動でghcr.ioにプッシュしたい場合
+-------------------------------------------------------------------------------
 
-- burger-war-kitイメージのビルド
-- burger-war-kitイメージからコンテナ起動
-- ghcr.ioへのログイン
-- burger-war-kitイメージをghcr.ioへプッシュ
+#### 1. ghcr.ioへのログイン
+ghcr.ioにイメージをプッシュするには、予めghcr.ioにログインしておく必要があります。
 
-以降の手順は、burger_war_kitのルートディレクトリに移動して実行する想定で記載しています。
-
-```bash 
-cd $HOME/catkin_ws/src/burger_war_kit
-```
-
-<br />
-
-### burger-war-kitイメージのビルド
-修正したDockerfileをビルドしてburger-war-kitイメージを作成するには、以下のコマンドを実行して下さい。
-
-```bash
-bash commands/docker-build.sh
-```
-
-<br />
-
-### burger-war-kitイメージからコンテナを起動
-ビルドして作成したイメージからコンテナを起動するには、以下のコマンドを実行して下さい。
-
-```bash
-bash commands/docker-launch.sh
-```
-
-起動するコンテナ名はデフォルトでは`burger-war-kit`となります。
-
-起動後は、例えば以下のコマンドでコンテナ内で`bash`を起動することができます。
-
-```bash
-docker exec -it bash
-```
-
-意図した修正が反映されているか、確認して下さい。
-
-<br />
-
-### ghcr.ioへのログイン
 ghcr.ioにログインするには、以下のコマンドを実行して下さい。
 
 ```bash
@@ -169,8 +354,9 @@ bash commands/docker-login.sh
 
 <br />
 
-### burger-war-kitイメージをghcr.ioへプッシュ
-ghcr.ioにイメージをプッシュするには、以下のコマンドを実行します。
+#### 2. burger-war-kitイメージをghcr.ioへプッシュ
+ghcr.ioにイメージをプッシュするには、以下のコマンドを実行します。  
+※
 
 ```bash
 bash commands/docker-push.sh                    # バージョン未指定(burger-war-kit:latestになる)
@@ -183,7 +369,7 @@ bash commands/docker-push.sh   -v 202101302145  # バージョン指定時(burge
 
 <br />
 
-#### 既に同じバージョンが存在する場合
+#### 補足) 既に同じバージョンが存在する場合
 既に同じバージョンのイメージがghcr.ioに登録されている場合は、後からプッシュしたものが古いイメージと置き換えられます。
 
 古いイメージはghcr.io上に残りますが、利用したい場合は以下のようにハッシュ値を指定する必要があります。
@@ -200,7 +386,7 @@ FROM ghcr.io/p-robotics-hub/burger-war-kit@sha256:9c337a0021be4b8a24cd8b9b3c2d97
 
 <br />
 
-#### ローカルのファイルだけ更新したい場合
+#### 補足) ローカルのファイルだけ更新したい場合
 もし、ghcr.ioへプッシュせずにローカルにあるイメージのバージョンだけ更新した場合は、`-l`オプションを付けてください。
 
 ```bash
@@ -216,8 +402,9 @@ ghcr.io/p-robotics-hub/burger-war-kit           202101302145           a8b2cdb5f
 
 <br />
 
-## スクリプト設定ファイル
-commandsディレクトリ以下のスクリプトの共通変数は`commands/config.sh`に集約しています。
+### C. スクリプト用共通設定ファイル
+-------------------------------------------------------------------------------
+commandsディレクトリ以下のスクリプトの共通変数は`commands/config.sh`に集約しています。  
 具体的には以下のような変数により設定を変更できます。
 
 ```bash
@@ -264,5 +451,3 @@ KIT_DOCKER_FILE_PATH=${DOCKER_ROOT_DIR}/kit/Dockerfile
 - DEVELOPER_NAME
 
 <br />
-
-## 補足
