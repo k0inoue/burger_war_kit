@@ -1,47 +1,53 @@
-# mainブランチへのプルリクエストマージ時に、テストにパスしたkitイメージにバージョンを付与する
+# テストにパスしたDockerImageに、正式なバージョンを付与する
 
-name: Auto Release Kit Image
+name: Release Kit Image
 
-# 実行トリガの定義
 on:
-
-  # 自動で実行する場合(プルリクエストのマージ時)
-  pull_request:
-    branches:
-      - main
-    types: [closed]
-    paths:
-      - 'TEST_VERSION'
-      - 'RELEASE_VERSION'
-
-  # 手動で実行する場合(for test)
+  # 手動で実行する
   workflow_dispatch:
+    inputs:
+      # テスト実施バージョンの指定
+      test_version:
+        description: 'バージョンを付与するテスト実施バージョンを指定して下さい (Format: test.N  ※Nは整数)'
+        default: test.N
+        required: true
+      # リリースバージョンの指定
+      release_version:
+        description: '付与するリリースバージョンを指定して下さい (Format: 4.N.n  ※N,nは整数)'
+        default: 4.N.n
+        required: true
+      # latestバージョンを付与するかの指定(yesで付与)
+      append_latest_enable:
+        description: 'latestバージョンを付与しますか？ (yes/no)'
+        default: 'yes'
+        required: true
+      # バージョン形式のチェック有無
+      check_format_enable:
+        description: '入力したバージョンのFormatチェックを行いますか？ (yes/no)'
+        default: 'yes'
+        required: true
 
-# 環境変数の定義
+# 環境変数の設定
 env:
   RESISTRY_URL: ghcr.io/${{ github.repository_owner }}
   IMAGE_NAME: burger-war-kit
 
-# 実行処理の定義
+# 処理の定義
 jobs:
   image-release:
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
-    # 環境準備
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
-    # ファイルからバージョン情報取得
+    # 入力値からバージョン情報取得
     - name: Set Version When Not Manual
-      if: github.event_name != 'workflow_dispatch'
+      if: github.event_name == 'workflow_dispatch'
       run: |
-        echo "TEST_VERSION=`head -n 1 ./TEST_VERSION`" >> ${GITHUB_ENV}
-        echo "RELEASE_VERSION=`head -n 1 ./RELEASE_VERSION`" >> ${GITHUB_ENV}
+        echo "TEST_VERSION=${{ github.event.inputs.test_version }}" >> ${GITHUB_ENV}
+        echo "RELEASE_VERSION=${{ github.event.inputs.release_version }}" >> ${GITHUB_ENV}
 
     # テストバージョンのフォーマットチェック
     - name: Check Input Test Version
+      if: ${{ github.event.inputs.check_format_enable }} == 'yes'
       run: |
         if echo "${TEST_VERSION}" | grep -E "^test\.[1-9][0-9]*$"; then
           echo "Valid test version"
@@ -52,6 +58,7 @@ jobs:
 
     # Releaseバージョンのフォーマットチェック
     - name: Check Input Release Version
+      if: ${{ github.event.inputs.check_format_enable }} == 'yes'
       run: |
         if echo "${RELEASE_VERSION}" | grep -E "^4\.[0-9]+\.[0-9]+$"; then
           echo "Valid release version"
@@ -79,12 +86,17 @@ jobs:
       run: |
         docker pull ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${TEST_VERSION}
 
-    # テストバージョンを正式バージョンとしてリリース
-    - name: Push Official Image
+    # テストバージョンのイメージに正式バージョンを付与
+    - name: Push Official Image Version
       run: |
         docker tag ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${TEST_VERSION} \
                    ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${RELEASE_VERSION}
         docker push ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${RELEASE_VERSION}
+
+    # テストバージョンのイメージにlatestバージョンを付与
+    - name: Push Official Image Version
+      if: ${{ github.event.inputs.append_latest_enable }} == 'yes'
+      run: |
         docker tag ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${TEST_VERSION} \
                    ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:latest
         docker push ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:latest
