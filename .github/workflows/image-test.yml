@@ -4,8 +4,6 @@ name: Kit Docker Image Build & Test
 on:
   # 指定ブランチで指定ファイルがPUSHされたときに実行する
   push:
-    branches-ignore:
-      - main
     paths:
       - 'docker/**'
       - 'scripts/**'
@@ -36,14 +34,19 @@ jobs:
   # ビルドとテストを実施し、テストにPASSすれば、仮バージョンでプッシュ
   build-test:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
       # 環境準備
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # # burger-war-kitイメージのビルド
+      # Dockerのversion確認
+      - name: Print Docker Version
+        run: |
+          docker version
+
+      # burger-war-kitイメージのビルド
       - name: Build Docker Image
         run: |
           docker build --file ${{ env.DOCKER_FILE }} --tag ${{ env.IMAGE_NAME }} .
@@ -52,7 +55,7 @@ jobs:
       - name: Xvfb install and run
         run: |
           sudo apt-get install -y xvfb
-          Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x1024x24 >/dev/null 2>&1 &
+          Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
 
       # burger-war-kitコンテナ起動
       - name: Launch Docker Container
@@ -122,4 +125,5 @@ jobs:
           file_pattern: TEST_VERSION
           branch: ${{ github.ref }}
           commit_message: Passed Test Version(#${{ github.run_number }}) Update.
-          skip_fetch: false
+          commit_options: '--allow-empty'
+          push_options: '--force'
