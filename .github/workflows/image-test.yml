@@ -125,5 +125,5 @@ jobs:
           file_pattern: TEST_VERSION
           branch: ${{ github.ref }}
           commit_message: Passed Test Version(#${{ github.run_number }}) Update.
-          commit_options: --allow-empty
+          commit_options: '--allow-empty'
           push_options: '--force'
