@@ -29,6 +29,7 @@ TEST_LOG_DIR=${LOG_ROOT_DIR}/test
 SCREENSHOT_DIR=${TEST_LOG_DIR}/screenshot
 SIM_JUDGE_LOG="${TEST_LOG_DIR}/sim_with_test.log"
 SIM_START_LOG="${TEST_LOG_DIR}/start_test.log"
+JUDGE_SERVER_RESULT_LOG="${TEST_LOG_DIR}/judge_server_result.log"
 
 # テスト結果初期化
 [ -d "${TEST_LOG_DIR}" ] || mkdir -p "${TEST_LOG_DIR}"
@@ -177,8 +178,9 @@ done
 # 終了処理
 #------------------------------------------------
 # 得点取得
-BLUE_POINT=$( curl -s ${JUDGE_SERVER_ADDR} | jq .scores.b )
-RED_POINT=$( curl -s ${JUDGE_SERVER_ADDR} | jq .scores.r )
+curl -s ${JUDGE_SERVER_ADDR} > ${JUDGE_SERVER_RESULT_LOG}
+BLUE_POINT=$( cat ${JUDGE_SERVER_RESULT_LOG} | jq .scores.b )
+RED_POINT=$( cat ${JUDGE_SERVER_RESULT_LOG} | jq .scores.r )
 
 # テスト結果確認
 TEST_RESULT=0
