@@ -45,9 +45,17 @@ jobs:
         echo "TEST_VERSION=${{ github.event.inputs.test_version }}" >> ${GITHUB_ENV}
         echo "RELEASE_VERSION=${{ github.event.inputs.release_version }}" >> ${GITHUB_ENV}
 
+    # バージョン情報出力
+    - name: Print Version
+      run: |
+        echo "TEST_VERSION: ${TEST_VERSION}"
+        echo "RELEASE_VERSION: ${RELEASE_VERSION}"
+        echo "Append latest: ${{ github.event.inputs.append_latest_enable }}"
+        echo "Check format: ${{ github.event.inputs.check_format_enable }}"
+  
     # テストバージョンのフォーマットチェック
     - name: Check Input Test Version
-      if: ${{ github.event.inputs.check_format_enable }} == 'yes'
+      if: github.event.inputs.check_format_enable == 'yes'
       run: |
         if echo "${TEST_VERSION}" | grep -E "^test\.[1-9][0-9]*$"; then
           echo "Valid test version"
@@ -58,7 +66,7 @@ jobs:
 
     # Releaseバージョンのフォーマットチェック
     - name: Check Input Release Version
-      if: ${{ github.event.inputs.check_format_enable }} == 'yes'
+      if: github.event.inputs.check_format_enable == 'yes'
       run: |
         if echo "${RELEASE_VERSION}" | grep -E "^4\.[0-9]+\.[0-9]+$"; then
           echo "Valid release version"
@@ -67,12 +75,6 @@ jobs:
           exit 1
         fi
 
-    # バージョン情報出力
-    - name: Print Version
-      run: |
-        echo TEST_VERSION: ${TEST_VERSION}
-        echo RELEASE_VERSION: ${RELEASE_VERSION}
-  
     # ghcr.ioにログイン
     - name: Login to ghrc.io
       uses: docker/login-action@v1
@@ -95,7 +97,7 @@ jobs:
 
     # テストバージョンのイメージにlatestバージョンを付与
     - name: Push Official Image Version
-      if: ${{ github.event.inputs.append_latest_enable }} == 'yes'
+      if: github.event.inputs.append_latest_enable == 'yes'
       run: |
         docker tag ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:${TEST_VERSION} \
                    ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME }}:latest
