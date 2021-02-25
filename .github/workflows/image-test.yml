@@ -86,6 +86,7 @@ jobs:
           echo GID: $(id -g)
           docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "id"
           docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "ls -la ~/"
+          docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "ls -la ~/.config/catkin"
           docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "ls -la ~/catkin_ws"
           docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "catkin build"
 
