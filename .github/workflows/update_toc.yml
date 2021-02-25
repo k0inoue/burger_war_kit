@@ -17,7 +17,7 @@ on:
 jobs:
   UpdateTOC:
     name: UpdateToc
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: TOC Generator
         uses: technote-space/toc-generator@v3

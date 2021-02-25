@@ -32,10 +32,10 @@ env:
   RESISTRY_URL: ghcr.io/${{ github.repository_owner }}
   IMAGE_NAME: burger-war-kit
 
-# 処理の定義
+# 実行する処理
 jobs:
   image-release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
     # 入力値からバージョン情報取得
