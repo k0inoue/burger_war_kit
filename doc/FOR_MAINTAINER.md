@@ -5,20 +5,36 @@ burger_war_kitリポジトリでは、[burger_war_dev](https://github.com/p-robo
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**
+目次
 
-- [Dockerイメージの構成](#docker%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%81%AE%E6%A7%8B%E6%88%90)
+- [Dockerfileの構成](#dockerfile%E3%81%AE%E6%A7%8B%E6%88%90)
 - [Docker関連のファイル構成](#docker%E9%96%A2%E9%80%A3%E3%81%AE%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E6%A7%8B%E6%88%90)
+- [Gitのブランチ運用方法](#git%E3%81%AE%E3%83%96%E3%83%A9%E3%83%B3%E3%83%81%E9%81%8B%E7%94%A8%E6%96%B9%E6%B3%95)
 - [開発の流れ](#%E9%96%8B%E7%99%BA%E3%81%AE%E6%B5%81%E3%82%8C)
-- [事前準備](#%E4%BA%8B%E5%89%8D%E6%BA%96%E5%82%99)
-  - [Personal access token の作成](#personal-access-token-%E3%81%AE%E4%BD%9C%E6%88%90)
-- [コマンド](#%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89)
-  - [burger-war-kitイメージのビルド](#burger-war-kit%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%81%AE%E3%83%93%E3%83%AB%E3%83%89)
-  - [burger-war-kitイメージからコンテナを起動](#burger-war-kit%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%81%8B%E3%82%89%E3%82%B3%E3%83%B3%E3%83%86%E3%83%8A%E3%82%92%E8%B5%B7%E5%8B%95)
-  - [ghcr.ioへのログイン](#ghcrio%E3%81%B8%E3%81%AE%E3%83%AD%E3%82%B0%E3%82%A4%E3%83%B3)
-  - [burger-war-kitイメージをghcr.ioへプッシュ](#burger-war-kit%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%82%92ghcrio%E3%81%B8%E3%83%97%E3%83%83%E3%82%B7%E3%83%A5)
-- [スクリプト設定ファイル](#%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%97%E3%83%88%E8%A8%AD%E5%AE%9A%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB)
+- [1. burger-war-kitイメージに影響があるファイルの修正(Dockerfileなど)](#1-burger-war-kit%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%81%AB%E5%BD%B1%E9%9F%BF%E3%81%8C%E3%81%82%E3%82%8B%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E3%81%AE%E4%BF%AE%E6%AD%A3dockerfile%E3%81%AA%E3%81%A9)
+- [2. burger-war-kitイメージのビルド](#2-burger-war-kit%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%81%AE%E3%83%93%E3%83%AB%E3%83%89)
+- [3. burger-war-kitイメージの動作確認](#3-burger-war-kit%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%81%AE%E5%8B%95%E4%BD%9C%E7%A2%BA%E8%AA%8D)
+  - [3.1 コンテナの起動](#31-%E3%82%B3%E3%83%B3%E3%83%86%E3%83%8A%E3%81%AE%E8%B5%B7%E5%8B%95)
+  - [3.2 コンテナ内でコマンドを実行](#32-%E3%82%B3%E3%83%B3%E3%83%86%E3%83%8A%E5%86%85%E3%81%A7%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89%E3%82%92%E5%AE%9F%E8%A1%8C)
+  - [3.3 scriptsディレクトリ配下のスクリプトを実行する](#33-scripts%E3%83%87%E3%82%A3%E3%83%AC%E3%82%AF%E3%83%88%E3%83%AA%E9%85%8D%E4%B8%8B%E3%81%AE%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%97%E3%83%88%E3%82%92%E5%AE%9F%E8%A1%8C%E3%81%99%E3%82%8B)
+- [4. 修正したDockerfileなどをGitHubにプッシュ](#4-%E4%BF%AE%E6%AD%A3%E3%81%97%E3%81%9Fdockerfile%E3%81%AA%E3%81%A9%E3%82%92github%E3%81%AB%E3%83%97%E3%83%83%E3%82%B7%E3%83%A5)
+- [5. GitHub Actionsによる自動ビルド・テスト](#5-github-actions%E3%81%AB%E3%82%88%E3%82%8B%E8%87%AA%E5%8B%95%E3%83%93%E3%83%AB%E3%83%89%E3%83%BB%E3%83%86%E3%82%B9%E3%83%88)
+  - [5.1 自動ビルド・テストの実行トリガ](#51-%E8%87%AA%E5%8B%95%E3%83%93%E3%83%AB%E3%83%89%E3%83%BB%E3%83%86%E3%82%B9%E3%83%88%E3%81%AE%E5%AE%9F%E8%A1%8C%E3%83%88%E3%83%AA%E3%82%AC)
+  - [5.2 自動ビルド・テストで行っている処理](#52-%E8%87%AA%E5%8B%95%E3%83%93%E3%83%AB%E3%83%89%E3%83%BB%E3%83%86%E3%82%B9%E3%83%88%E3%81%A7%E8%A1%8C%E3%81%A3%E3%81%A6%E3%81%84%E3%82%8B%E5%87%A6%E7%90%86)
+  - [5.3 判定方法とログファイル](#53-%E5%88%A4%E5%AE%9A%E6%96%B9%E6%B3%95%E3%81%A8%E3%83%AD%E3%82%B0%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB)
+- [6. GitHub Actionsでビルドされたburger-war-kitイメージ(テスト版)を使って動作確認](#6-github-actions%E3%81%A7%E3%83%93%E3%83%AB%E3%83%89%E3%81%95%E3%82%8C%E3%81%9Fburger-war-kit%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%83%86%E3%82%B9%E3%83%88%E7%89%88%E3%82%92%E4%BD%BF%E3%81%A3%E3%81%A6%E5%8B%95%E4%BD%9C%E7%A2%BA%E8%AA%8D)
+  - [6.1 テスト版のburger-war-kitイメージを取得](#61-%E3%83%86%E3%82%B9%E3%83%88%E7%89%88%E3%81%AEburger-war-kit%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%82%92%E5%8F%96%E5%BE%97)
+  - [6.2 burger-war-kitイメージの動作確認](#62-burger-war-kit%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%81%AE%E5%8B%95%E4%BD%9C%E7%A2%BA%E8%AA%8D)
+- [7. devブランチへのプルリクエストとマージ](#7-dev%E3%83%96%E3%83%A9%E3%83%B3%E3%83%81%E3%81%B8%E3%81%AE%E3%83%97%E3%83%AB%E3%83%AA%E3%82%AF%E3%82%A8%E3%82%B9%E3%83%88%E3%81%A8%E3%83%9E%E3%83%BC%E3%82%B8)
+  - [7.1 プルリクエストの作成と自動テストの実行](#71-%E3%83%97%E3%83%AB%E3%83%AA%E3%82%AF%E3%82%A8%E3%82%B9%E3%83%88%E3%81%AE%E4%BD%9C%E6%88%90%E3%81%A8%E8%87%AA%E5%8B%95%E3%83%86%E3%82%B9%E3%83%88%E3%81%AE%E5%AE%9F%E8%A1%8C)
+  - [7.2 burger-war-kitイメージの動作確認](#72-burger-war-kit%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%81%AE%E5%8B%95%E4%BD%9C%E7%A2%BA%E8%AA%8D)
+  - [7.3 burger-war-devイメージでの動作確認](#73-burger-war-dev%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%81%A7%E3%81%AE%E5%8B%95%E4%BD%9C%E7%A2%BA%E8%AA%8D)
+- [8. mainブランチにマージ](#8-main%E3%83%96%E3%83%A9%E3%83%B3%E3%83%81%E3%81%AB%E3%83%9E%E3%83%BC%E3%82%B8)
+- [9. burger-war-kitイメージをリリース (burger-war-kitイメージ(テスト版)にlatestタグを付与)](#9-burger-war-kit%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%82%92%E3%83%AA%E3%83%AA%E3%83%BC%E3%82%B9-burger-war-kit%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%83%86%E3%82%B9%E3%83%88%E7%89%88%E3%81%ABlatest%E3%82%BF%E3%82%B0%E3%82%92%E4%BB%98%E4%B8%8E)
 - [補足](#%E8%A3%9C%E8%B6%B3)
+  - [A. Personal access token の作成](#a-personal-access-token-%E3%81%AE%E4%BD%9C%E6%88%90)
+  - [B. 手動でghcr.ioにプッシュしたい場合](#b-%E6%89%8B%E5%8B%95%E3%81%A7ghcrio%E3%81%AB%E3%83%97%E3%83%83%E3%82%B7%E3%83%A5%E3%81%97%E3%81%9F%E3%81%84%E5%A0%B4%E5%90%88)
+  - [C. スクリプト用共通設定ファイル](#c-%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%97%E3%83%88%E7%94%A8%E5%85%B1%E9%80%9A%E8%A8%AD%E5%AE%9A%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
