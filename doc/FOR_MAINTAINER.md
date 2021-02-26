@@ -41,7 +41,7 @@ burger-war-kitイメージの作成に関連するファイルは以下となり
 burger_war_kit
 |-- .github/workflows
 |   |-- image-release.yml         ... burger-war-kitイメージに正式バージョンを付与するworkflowファイル
-|   |-- image-test.yml            ... burger-war-kitイメージを自動ビルド＆テストするworkflowファイル
+|   |-- image-test.yml            ... burger-war-kitイメージを自動ビルド・テストするworkflowファイル
 |   |-- update_toc.yml            ... ドキュメントの目次を作成・更新するworkflowファイル
 |-- commands
 |   |-- config.sh                 ... 各スクリプトで参照する共通設定ファイル
@@ -66,7 +66,20 @@ burger_war_kit
 
 <br />
 
+## Gitのブランチ運用方法
+開発者は、各機能開発やバグ修正ごとに開発用ブランチを作成し、修正・コミットを行います。  
+開発用ブランチで動作確認まで完了したら、devブランチにプルリクエストを作成して下さい。
+
+devブランチへのマージと、mainブランチへのマージはリポジトリ管理者が行います。
+
+ソフトの修正からリリースまでのブランチごとの作業は以下のイメージになります。
+
+![リリースまでの流れ](https://user-images.githubusercontent.com/76457573/109241862-66433f80-781d-11eb-863b-81a49bd1bdb7.png)
+
+mainへのマージ後、不要になった開発用ブランチは削除して下さい。
+
 ## 開発の流れ
+
 基本的な開発の流れは以下になります。
 
 1. burger-war-kitイメージに影響があるファイルの修正(Dockerfileなど)
@@ -74,19 +87,23 @@ burger_war_kit
 3. burger-war-kitイメージの動作確認
    - 問題があれば1に戻る
 4. 修正したDockerfileなどをGitHubにプッシュ
-5. GitHub Actionsによる自動ビルド＆テスト
+5. GitHub Actionsによる自動ビルド・テスト
    - 問題があれば1に戻る
 6. GitHub Actionsでビルドされたburger-war-kitイメージ(テスト版)を使って動作確認
    - 問題があれば1に戻る
-7. 開発者はdevブランチにプルリクエスト
-   - リポジトリ管理者がdevへマージ時に、自動テスト実施
-8. devブランチで動作確認
+7. devブランチへのプルリクエストとマージ
+   - 開発者が開発用ブランチからdevブランチへプルリクエストを作成
+   - リポジトリ管理者がdevへマージ
+   - マージ時に、5と同様の自動ビルド・テストが実行される
    - burger-war-devイメージでも動作確認を行う
    - 問題があれば1に戻る
-9. リポジトリ管理者がmainにマージ
-10. burger-war-kitイメージをリリース(burger-war-kitイメージ(テスト版)にlatestタグを付与)
+8. mainブランチにマージ
+   - リポジトリ管理者がmainブランチへマージ
+   - マージ時に、5と同様の自動ビルド・テストが実行される
+9.  burger-war-kitイメージをリリース(burger-war-kitイメージ(テスト版)にlatestタグを付与)
 
 <br />
+
 
 以降で具体的な手順について説明します。
 
@@ -98,7 +115,7 @@ cd $HOME/catkin_ws/src/burger_war_kit
 
 <br />
 
-## 1. bburger-war-kitイメージに影響があるファイルの修正(Dockerfileなど)
+## 1. burger-war-kitイメージに影響があるファイルの修正(Dockerfileなど)
 
 <br />
 
@@ -172,7 +189,6 @@ bash commands/kit.sh -s sim_width_judge.sh
 <br />
 
 ## 4. 修正したDockerfileなどをGitHubにプッシュ
--------------------------------------------------------------------------------
 GitHubへのプッシュなどの操作は、`git`コマンドで行っても構いませんが、VSCodeを使用すると楽になるかもしません。
 
 以下のサイトなどを参考にして下さい。
@@ -181,10 +197,10 @@ GitHubへのプッシュなどの操作は、`git`コマンドで行っても構
 
 <br />
 
-## 5. GitHub Actionsによる自動ビルド＆テスト
+## 5. GitHub Actionsによる自動ビルド・テスト
 ### 5.1 自動ビルド・テストの実行トリガ
 -------------------------------------------------------------------------------
-自動ビルド＆テストは、以下のファイルの修正をプッシュした際に実行されます。
+自動ビルド・テストは、以下のファイルの修正をプッシュした際に実行されます。
 
 - `docker/**`
 - `scripts/**`
@@ -192,22 +208,22 @@ GitHubへのプッシュなどの操作は、`git`コマンドで行っても構
 - `burger_war/**`
 - `.github/workflows/image-test.yml`
   
-自動ビルド＆テストは、どのブランチへプッシュしても実行されます。
+自動ビルド・テストは、どのブランチへプッシュしても実行されます。
 
 <br />
 
 ### 5.2 自動ビルド・テストで行っている処理
 -------------------------------------------------------------------------------
-GitHub Actionsで行う処理は、主な処理は以下になります。
+GitHub Actionsの自動テストで行っている主な処理は以下になります。
 
-1. burger-war-kitイメージのビルド(`docker build`)
-2. 仮想ディスプレイの起動(`Xvfb`)
-3. burger-war-kitコンテナ起動(`docker run`)
-4. ロボコンプロジェクトのビルド(`catkin build`)
-5. burger-war-kitのテスト(`scripts/sim_run_test.sh`)
-6. テスト実行ログの保存(`GitHub Artifact`)
-7. burger-war-kitrイメージをテスト版としてプッシュ(`docker push`)
-8. テストにパスしたバージョンをファイルに保存(`TEST_VERSION`)
+1. burger-war-kitイメージのビルド (`docker build`)
+2. 仮想ディスプレイの起動 (`Xvfb`)
+3. burger-war-kitコンテナ起動 (`docker run`)
+4. ロボコンプロジェクトのビルド (`catkin build`)
+5. burger-war-kitのテスト (`scripts/sim_run_test.sh`)
+6. テスト実行ログの保存 (`GitHub Artifact`)
+7. burger-war-kitrイメージをテスト版としてプッシュ (`docker push`)
+8. テストにパスしたバージョンをファイルに保存 (`TEST_VERSION`)
 
 実際の処理は`.github/workflows/image-test.yml`を参照して下さい。
 
@@ -215,6 +231,26 @@ GitHub Actionsで行う処理は、主な処理は以下になります。
 
 ### 5.3 判定方法とログファイル
 -------------------------------------------------------------------------------
+自動テストは、赤、青の各ロボットが3分間で1点以上取得していれば試験はパスとしています。
+
+3分間というのは実際の実行時間ではなく、Gazeboのシミュレーション時間になります。
+
+テスト終了後、実行したGitHub ActionsのArtifactsから自動テスト実行時のログファイルをダウンロードできます。
+
+![ログ出力](https://user-images.githubusercontent.com/76457573/109246276-4283f780-7825-11eb-844a-e5534f12ea3f.png)
+
+出力するログ(`test_log/test`ディレクトリ配下)は以下になります。
+
+|出力されるログ|説明
+|:-------------|:---
+|gazebo/*|$HOME/.gazebo/logディレクトリ配下のファイル
+|ros/*|$HOME/.ros/logディレクトリ配下のファイル
+|judge/*|burger_war_kit/judge/logsディレクトリ配下のファイル
+|screenshot/*|試験実行時の画面キャプチャ画像
+|sim_with_test.log|burger_war_kit/scripts/sim_with_test.shの出力ログ
+|start_test.log|burger_war_kit/scripts/start_test.shの出力ログ
+|judge_server_result.log|試験終了時に審判サーバから取得した情報(/warState)
+
 
 <br />
 
@@ -222,7 +258,7 @@ GitHub Actionsで行う処理は、主な処理は以下になります。
 ### 6.1 テスト版のburger-war-kitイメージを取得
 -------------------------------------------------------------------------------
 以下のコマンドで、テストにパスしたburger-war-kitイメージを取得して下さい。  
-末尾の`test.XXX`の`XXX`には、実際にテストを実行したGitHub Actionsの番号(#XXX)を指定して下さい。
+末尾の`test.XXX`の`XXX`には、実際にテストを実行したGitHub Actionsの実行番号(#XXX)を指定して下さい。
 
 ```
 docker pull ghcr.io/p-robotics-hub/burger-war-kit:test.XXX
@@ -251,15 +287,41 @@ bash commands/docker-launch.sh -r -v test.4
 
 <br />
 
-### 6.3 burger-war-devイメージの動作確認
+## 7. devブランチへのプルリクエストとマージ
+### 7.1 プルリクエストの作成と自動テストの実行
 -------------------------------------------------------------------------------
-`$HOME/catkin_ws/src/burger_war_dev`へ移動して、以下のように、`-k`でテストバージョンを指定して下さい。
+開発者は、各開発用ブランチでの修正とテストが完了したら、devブランチへのプルリクエストを作成します。
+
+プルリクエストの作成手順は[公式ドキュメント](https://docs.github.com/ja/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request)などを参考にして下さい。
+
+プルリクエスト作成後は、リポジトリ管理者が承認し、devブランチへマージして下さい。
+
+devブランチへマージした際、[5と同様の自動ビルド・テスト](#5-github-actionsによる自動ビルドテスト)がGitHub Actionsで実行されます。
+
+自動テストにパスすることを確認して下さい。
+
+<br />
+
+### 7.2 burger-war-kitイメージの動作確認
+-------------------------------------------------------------------------------
+自動テストにパスした後は、[6の手順](#6-github-actionsでビルドされたburger-war-kitイメージテスト版を使って動作確認)に倣って動作確認を行って下さい。
+
+<br />
+
+### 7.3 burger-war-devイメージでの動作確認
+-------------------------------------------------------------------------------
+burger-war-kitの動作確認に問題がない場合は、burger-war-devイメージと組み合わせたときに問題が発生しないか確認しましょう。
+
+※予めburger_war_devリポジトリをクローンしておく必要があります。詳細な手順は[こちらの手順書](https://github.com/p-robotics-hub/burger_war_dev/blob/main/STARTUP_GUIDE.md#11-%E3%81%93%E3%81%AE%E3%83%AA%E3%83%9D%E3%82%B8%E3%83%88%E3%83%AA%E3%81%AE%E3%82%AF%E3%83%AD%E3%83%BC%E3%83%B3)を参考にして下さい。
+
+以下のように`$HOME/catkin_ws/src/burger_war_dev`へ移動後、`docker-build.sh`の`-k`でテストバージョンを指定して、burger_war_devイメージのビルドを行って下さい。  
 
 ```
+cd $HOME/catkin_ws/src/burger_war_dev
 bash commands/docker-build.sh -k test.4
 ```
 
-あとは、通常通りコンテナを起動して動作確認を行って下さい。
+あとは、通常通りburger-war-devコンテナを起動して、動作確認を行って下さい。
 
 ```
 bash commands/docker-launch.sh
@@ -267,25 +329,48 @@ bash commands/docker-launch.sh
 
 <br />
 
-## 7. burger-war-kitイメージをリリース
+## 8. mainブランチにマージ
+リポジトリの管理者は、任意のタイミングでdevブランチをマージして下さい。
+
+mainブランチへのマージ時に、[5と同様の自動ビルド・テスト](#5-github-actionsによる自動ビルドテスト)がGitHub Actionsで実行されます。
+
+自動テストにパスすることを確認して下さい。
+
+作成されるburger-war-kitイメージは、通常はdevブランチへのマージ時での自動テスト時に作成されたイメージと同じかと思いますが、必要であれば[7.2の手順](#-72-burger-war-kitイメージの動作確認)、[7.3の手順](#-73-burger-war-devイメージでの動作確認)と同様に手動で動作確認を行って下さい。
+
+
+<br />
+
+## 9. burger-war-kitイメージをリリース (burger-war-kitイメージ(テスト版)にlatestタグを付与)
 以下のページを開いて下さい。
 
 [burger_war_kitのworkflows](https://github.com/p-robotics-hub/burger_war_kit/actions)
 
-開いたページ右側の「Workflows」から「Release Kit Image」を選択して、「Run workflow」をクリックすると、以下のように必要な情報の入力フォームが表示されます。
+開いたページの右側にある「Workflows」から「Release Kit Image」を選択して、「Run workflow」をクリックすると、以下のように必要な情報の入力フォームが表示されます。
 
 ![リリース用workflow](https://user-images.githubusercontent.com/76457573/109125137-0d2cca80-778f-11eb-9716-0d4e50eca375.png)
 
 
-以下の必要な項目を設定して、「Run workflow」をクリックして下さい。
+以下の必要な項目を入力して、「Run workflow」をクリックして下さい。
+workflowの実行は2分ほどで完了します。
 
-- Use workflow form： workflowを実行するブランチを指定(通常はmainを選択して下さい)
-- テスト実施バージョン： バージョンを付与するテスt実施バージョン(`test.N`)を指定して下さい
-- 付与するリリースバージョン： `4.N.n`の形式でバージョンを指定して下さい
-- latestバージョンを付与するか： `yes`指定時、`latest`バージョンとして公開します
-- 入力値のFormatチェックを行うか： `yes`指定時、誤ったバージョンの付与を防ぐ為、入力されたバージョンのFormatをチェックします
+|設定項目|説明
+|:-------|:---
+|Use workflow form|workflowを実行するブランチを指定 (通常はmainを選択して下さい)
+|テスト実施バージョン|バージョンを付与するテスt実施バージョン(`test.N`)を指定して下さい
+|付与するリリースバージョン|`4.N.n`の形式でバージョンを指定して下さい
+|latestバージョンを付与するか|`yes`指定時、`latest`バージョンとして公開します
+|入力値のFormatチェックを行うか|`yes`指定時、誤ったバージョンの付与を防ぐ為、入力されたバージョンのFormatをチェックします
 
-burger-war-kitイメージを`latest`バージョンとして公開した後は、burger_war_devで利用されるようになります。
+<br />
+
+実行完了後は、以下のページで意図通りのバージョンが付与されているか確認して下さい。
+
+[ghcr.ioでのburger-war-kitイメージ](https://github.com/orgs/p-robotics-hub/packages/container/package/burger-war-kit)
+
+`latest`を付与したイメージは、burger_war_devで利用されるようになります。
+
+<br />
 
 
 ## 補足
@@ -319,7 +404,7 @@ burger-war-kitイメージをdocker-push.shを使用してghcr.ioにプッシュ
 
 <br />
 
-##### 4. 生成された Personal access token をファイルに保存
+#### 4. 生成された Personal access token をファイルに保存
 
 以下のコマンドを実行して、`Personal access token`を保存するファイルを作成して下さい。
 
@@ -359,7 +444,7 @@ ghcr.ioにイメージをプッシュするには、以下のコマンドを実�
 ※
 
 ```bash
-bash commands/docker-push.sh                    # バージョン未指定(burger-war-kit:latestになる)
+bash commands/docker-push.sh                    # バージョン未指定時(burger-war-kit:latestになる)
 bash commands/docker-push.sh   -v 202101302145  # バージョン指定時(burger-war-kit:202101302145になる)
 ```
 
