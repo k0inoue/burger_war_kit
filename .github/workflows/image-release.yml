@@ -8,22 +8,22 @@ on:
     inputs:
       # テスト実施バージョンの指定
       test_version:
-        description: 'バージョンを付与するテスト実施バージョンを指定して下さい (Format: test.N  ※Nは整数)'
+        description: 'テスト実施バージョン (Format: test.N  ※Nは整数)'
         default: test.N
         required: true
       # リリースバージョンの指定
       release_version:
-        description: '付与するリリースバージョンを指定して下さい (Format: 4.N.n  ※N,nは整数)'
+        description: '付与するリリースバージョン (Format: 4.N.n  ※N,nは整数)'
         default: 4.N.n
         required: true
       # latestバージョンを付与するかの指定(yesで付与)
       append_latest_enable:
-        description: 'latestバージョンを付与しますか？ (yes/no)'
+        description: 'latestバージョンの付与 (yes/no)'
         default: 'yes'
         required: true
       # バージョン形式のチェック有無
       check_format_enable:
-        description: '入力したバージョンのFormatチェックを行いますか？ (yes/no)'
+        description: '入力値のFormatチェックの実施 (yes/no)'
         default: 'yes'
         required: true
 
@@ -32,10 +32,10 @@ env:
   RESISTRY_URL: ghcr.io/${{ github.repository_owner }}
   IMAGE_NAME: burger-war-kit
 
-# 処理の定義
+# 実行する処理
 jobs:
   image-release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
     # 入力値からバージョン情報取得
