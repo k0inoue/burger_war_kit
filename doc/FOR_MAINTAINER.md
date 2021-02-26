@@ -98,7 +98,7 @@ mainへのマージ後、不要になった開発用ブランチは削除して�
 
 基本的な開発の流れは以下になります。
 
-1. burger-war-kitイメージに影響があるファイルの修正(Dockerfileなど)
+1. burger-war-kitイメージの修正
 2. burger-war-kitイメージのビルド
 3. burger-war-kitイメージの動作確認
    - 問題があれば1に戻る
@@ -121,7 +121,7 @@ mainへのマージ後、不要になった開発用ブランチは削除して�
 <br />
 
 
-以降で具体的な手順について説明します。
+以降で各手順について説明します。
 
 特に記載がない場合は、いずれの手順もburger_war_kitのルートディレクトリに移動して実行する想定で記載しています。
 
@@ -131,7 +131,25 @@ cd $HOME/catkin_ws/src/burger_war_kit
 
 <br />
 
-## 1. burger-war-kitイメージに影響があるファイルの修正(Dockerfileなど)
+## 1. burger-war-kitイメージの修正
+burger-war-kitイメージを修正するには、`docker/kit/Dockerfile`を修正して下さい。
+
+また、基本的にburger-war-kitイメージを作成するためのファイルは、`docker`ディレクトリ配下に置いて下さい。
+
+現状の`docker`ディレクトリ配下のファイルは以下になります。
+
+```
+|-- docker
+|   |-- entrypoint.sh             ... DockerのENTRYPOINTで指定する実行スクリプト
+|   |-- kit
+|   |   |-- Dockerfile            ... burger-war-kitイメージを作成するためのDockerfile
+|   |-- templates                 ... docker build時に/home/developer直下にコピーするファイル群
+|   |   |-- .gazebo
+|   |   |   |-- gui.ini           ... Gazeboのウィンドウ配置設定用(自動テストで使用)
+|   |   |-- .ignition/fuel
+|   |   |   |-- config.yaml       ... Gazebo起動時に出るエラーを抑制するための設定ファイル
+|   |   |-- export_env            ... コンテナ内のユーザーに必要な設定(`.bash_profile`と`.bashrc`に追記する内容)
+```
 
 <br />
 
@@ -173,7 +191,7 @@ bash commands/docker-launch.sh -v test
 
 <br />
 
-### 3.2 コンテナ内でコマンドを実行
+### 3.2 ホストPCからコンテナ内でコマンドを実行
 -------------------------------------------------------------------------------
 コンテナ起動後は、以下のようにしてコンテナ内で任意のコマンドを実行できます。  
 `-c`オプションの後に実行したいコマンドを指定して下さい。  
@@ -192,7 +210,7 @@ bash commands/kit.sh
 
 <br />
 
-### 3.3 scriptsディレクトリ配下のスクリプトを実行する
+### 3.3 ホストPCからscriptsディレクトリ配下のスクリプトを実行
 -------------------------------------------------------------------------------
 scriptsディレクトリ配下のスクリプトを実行したい場合は、`-s`オプションで実行するスクリプトを指定して下さい。
 
@@ -255,10 +273,12 @@ GitHub Actionsの自動テストで行っている主な処理は以下になり
 
 ![ログ出力](https://user-images.githubusercontent.com/76457573/109246276-4283f780-7825-11eb-844a-e5534f12ea3f.png)
 
-出力するログ(`test_log/test`ディレクトリ配下)は以下になります。
+<br />
 
-|出力されるログ|説明
-|:-------------|:---
+ダウンロードしたログファイル(`test_log/test`ディレクトリ配下)の概要は以下になります。
+
+|ログファイル|説明
+|:-----------|:---
 |gazebo/*|$HOME/.gazebo/logディレクトリ配下のファイル
 |ros/*|$HOME/.ros/logディレクトリ配下のファイル
 |judge/*|burger_war_kit/judge/logsディレクトリ配下のファイル
@@ -352,17 +372,24 @@ mainブランチへのマージ時に、[5と同様の自動ビルド・テス�
 
 自動テストにパスすることを確認して下さい。
 
-作成されるburger-war-kitイメージは、通常はdevブランチへのマージ時での自動テスト時に作成されたイメージと同じかと思いますが、必要であれば[7.2の手順](#-72-burger-war-kitイメージの動作確認)、[7.3の手順](#-73-burger-war-devイメージでの動作確認)と同様に手動で動作確認を行って下さい。
+mainブランチでの自動テスト時に作成されるburger-war-kitイメージは、通常はdevブランチへのマージ時での自動テスト時に作成されたイメージと同じになるかと思います。
+
+もし必要であれば[7.2の手順](#-72-burger-war-kitイメージの動作確認)、[7.3の手順](#-73-burger-war-devイメージでの動作確認)と同様に手動で動作確認を行って下さい。
 
 
 <br />
 
 ## 9. burger-war-kitイメージをリリース (burger-war-kitイメージ(テスト版)にlatestタグを付与)
-以下のページを開いて下さい。
+自動テスト時にghcr.ioにプッシュされたテスト版のburger-war-kitイメージに、以下のバージョンを付与することでburger_war_devで利用できるようにします。
+
+- `4.N.n`    ※N, nは整数
+- `latest`
+
+具体的には、ブラウザで以下のページを開き、リリース用のGitHub Actionsを実行します。
 
 [burger_war_kitのworkflows](https://github.com/p-robotics-hub/burger_war_kit/actions)
 
-開いたページの右側にある「Workflows」から「Release Kit Image」を選択して、「Run workflow」をクリックすると、以下のように必要な情報の入力フォームが表示されます。
+上記ページの右側にある「Workflows」から「Release Kit Image」を選択して、「Run workflow」をクリックすると、以下のように必要な情報の入力フォームが表示されます。
 
 ![リリース用workflow](https://user-images.githubusercontent.com/76457573/109125137-0d2cca80-778f-11eb-9716-0d4e50eca375.png)
 
@@ -373,10 +400,10 @@ workflowの実行は2分ほどで完了します。
 |設定項目|説明
 |:-------|:---
 |Use workflow form|workflowを実行するブランチを指定 (通常はmainを選択して下さい)
-|テスト実施バージョン|バージョンを付与するテスt実施バージョン(`test.N`)を指定して下さい
+|テスト実施バージョン|バージョンを付与するテスト実施バージョン(`test.N`)を指定して下さい
 |付与するリリースバージョン|`4.N.n`の形式でバージョンを指定して下さい
-|latestバージョンを付与するか|`yes`指定時、`latest`バージョンとして公開します
-|入力値のFormatチェックを行うか|`yes`指定時、誤ったバージョンの付与を防ぐ為、入力されたバージョンのFormatをチェックします
+|latestバージョンの付与|`yes`指定時、`latest`バージョンとして公開します
+|入力値のFormatチェックの実施|`yes`指定時、誤ったバージョンの付与を防ぐ為、入力されたバージョンのFormatをチェックします
 
 <br />
 
@@ -392,7 +419,6 @@ workflowの実行は2分ほどで完了します。
 ## 補足
 ### A. Personal access token の作成
 -------------------------------------------------------------------------------
-
 burger-war-kitイメージをdocker-push.shを使用してghcr.ioにプッシュするためには、各自のGitHubアカウントで`Personal access token`を作成する必要があります。
 
 以下の手順に従って、[こちらのページ](https://github.com/settings/tokens)から作成して下さい。
