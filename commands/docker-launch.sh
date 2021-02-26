@@ -7,6 +7,7 @@
 #+
 #-[OPTIONS]
 #-  -a options    'docker run'に追加で渡す引数を指定（複数回指定可能）
+#-  -r            ghcr.io上にプッシュされているdockerイメージを使用する
 #-  -w dir-path   ホストPCのロボコンワークスペースのパスを指定 (default: $HOME/catkin_ws)
 #-  -v version    'docker run'で起動するイメージの'version'を指定 (default: latest)
 #-  -h            このヘルプを表示
@@ -42,11 +43,14 @@ source "${SCRIPT_DIR}/config.sh"
 #------------------------------------------------
 RUN_OPTION=
 IMAGE_VERSION=latest
-while getopts a:v:w:h OPT
+while getopts a:rv:w:h OPT
 do
   case $OPT in
     a  ) # docker runへの追加オプション引数指定
       RUN_OPTION="${RUN_OPTION} ${OPTARG}"
+      ;;
+    r  ) # ghcr.io上の Dockerイメージを使用する
+      KIT_DOCKER_IMAGE_NAME="${REGISTRY_URL}/${KIT_DOCKER_IMAGE_NAME}"
       ;;
     w  ) # ホストのワークスペースの指定
       HOST_WS_DIR="${OPTARG}"
