@@ -22,7 +22,8 @@ burger_war_kitリポジトリでは、[burger_war_dev](https://github.com/p-robo
   - [5.1 自動ビルド・テストの実行トリガ](#51-%E8%87%AA%E5%8B%95%E3%83%93%E3%83%AB%E3%83%89%E3%83%BB%E3%83%86%E3%82%B9%E3%83%88%E3%81%AE%E5%AE%9F%E8%A1%8C%E3%83%88%E3%83%AA%E3%82%AC)
   - [5.2 自動ビルド・テストで行っている処理](#52-%E8%87%AA%E5%8B%95%E3%83%93%E3%83%AB%E3%83%89%E3%83%BB%E3%83%86%E3%82%B9%E3%83%88%E3%81%A7%E8%A1%8C%E3%81%A3%E3%81%A6%E3%81%84%E3%82%8B%E5%87%A6%E7%90%86)
   - [5.3 判定方法とログファイル](#53-%E5%88%A4%E5%AE%9A%E6%96%B9%E6%B3%95%E3%81%A8%E3%83%AD%E3%82%B0%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB)
-- [6. GitHub Actionsでビルドされたburger-war-kitイメージ(テスト版)を使って動作確認](#6-github-actions%E3%81%A7%E3%83%93%E3%83%AB%E3%83%89%E3%81%95%E3%82%8C%E3%81%9Fburger-war-kit%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%83%86%E3%82%B9%E3%83%88%E7%89%88%E3%82%92%E4%BD%BF%E3%81%A3%E3%81%A6%E5%8B%95%E4%BD%9C%E7%A2%BA%E8%AA%8D)
+  - [5.4 ローカル環境とGitHub Actionsでの自動テストの違い](#54-%E3%83%AD%E3%83%BC%E3%82%AB%E3%83%AB%E7%92%B0%E5%A2%83%E3%81%A8github-actions%E3%81%A7%E3%81%AE%E8%87%AA%E5%8B%95%E3%83%86%E3%82%B9%E3%83%88%E3%81%AE%E9%81%95%E3%81%84)
+- [6. burger-war-kitイメージ(テスト版)を使って動作確認](#6-burger-war-kit%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%83%86%E3%82%B9%E3%83%88%E7%89%88%E3%82%92%E4%BD%BF%E3%81%A3%E3%81%A6%E5%8B%95%E4%BD%9C%E7%A2%BA%E8%AA%8D)
   - [6.1 テスト版のburger-war-kitイメージを取得](#61-%E3%83%86%E3%82%B9%E3%83%88%E7%89%88%E3%81%AEburger-war-kit%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%82%92%E5%8F%96%E5%BE%97)
   - [6.2 burger-war-kitイメージの動作確認](#62-burger-war-kit%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%81%AE%E5%8B%95%E4%BD%9C%E7%A2%BA%E8%AA%8D)
 - [7. devブランチへのプルリクエストとマージ](#7-dev%E3%83%96%E3%83%A9%E3%83%B3%E3%83%81%E3%81%B8%E3%81%AE%E3%83%97%E3%83%AB%E3%83%AA%E3%82%AF%E3%82%A8%E3%82%B9%E3%83%88%E3%81%A8%E3%83%9E%E3%83%BC%E3%82%B8)
@@ -30,7 +31,7 @@ burger_war_kitリポジトリでは、[burger_war_dev](https://github.com/p-robo
   - [7.2 burger-war-kitイメージの動作確認](#72-burger-war-kit%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%81%AE%E5%8B%95%E4%BD%9C%E7%A2%BA%E8%AA%8D)
   - [7.3 burger-war-devイメージでの動作確認](#73-burger-war-dev%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%81%A7%E3%81%AE%E5%8B%95%E4%BD%9C%E7%A2%BA%E8%AA%8D)
 - [8. mainブランチにマージ](#8-main%E3%83%96%E3%83%A9%E3%83%B3%E3%83%81%E3%81%AB%E3%83%9E%E3%83%BC%E3%82%B8)
-- [9. burger-war-kitイメージをリリース (burger-war-kitイメージ(テスト版)にlatestタグを付与)](#9-burger-war-kit%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%82%92%E3%83%AA%E3%83%AA%E3%83%BC%E3%82%B9-burger-war-kit%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%83%86%E3%82%B9%E3%83%88%E7%89%88%E3%81%ABlatest%E3%82%BF%E3%82%B0%E3%82%92%E4%BB%98%E4%B8%8E)
+- [9. burger-war-kitイメージをリリース](#9-burger-war-kit%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%82%92%E3%83%AA%E3%83%AA%E3%83%BC%E3%82%B9)
 - [補足](#%E8%A3%9C%E8%B6%B3)
   - [A. Personal access token の作成](#a-personal-access-token-%E3%81%AE%E4%BD%9C%E6%88%90)
   - [B. 手動でghcr.ioにプッシュしたい場合](#b-%E6%89%8B%E5%8B%95%E3%81%A7ghcrio%E3%81%AB%E3%83%97%E3%83%83%E3%82%B7%E3%83%A5%E3%81%97%E3%81%9F%E3%81%84%E5%A0%B4%E5%90%88)
@@ -104,8 +105,9 @@ mainへのマージ後、不要になった開発用ブランチは削除して�
    - 問題があれば1に戻る
 4. 修正したDockerfileなどをGitHubにプッシュ
 5. GitHub Actionsによる自動ビルド・テスト
+   - 自動テストにパスすれば、ghcr.ioへburger-war-kitイメージ(テスト版)がプッシュされる
    - 問題があれば1に戻る
-6. GitHub Actionsでビルドされたburger-war-kitイメージ(テスト版)を使って動作確認
+6. burger-war-kitイメージ(テスト版)を使って動作確認
    - 問題があれば1に戻る
 7. devブランチへのプルリクエストとマージ
    - 開発者が開発用ブランチからdevブランチへプルリクエストを作成
@@ -290,7 +292,37 @@ GitHub Actionsの自動テストで行っている主な処理は以下になり
 
 <br />
 
-## 6. GitHub Actionsでビルドされたburger-war-kitイメージ(テスト版)を使って動作確認
+### 5.4 ローカル環境とGitHub Actionsでの自動テストの違い
+-------------------------------------------------------------------------------
+#### ローカル環境
+ローカル環境では、コンテナ起動時にホストPCの`$HOME/catkin_ws`ディレクトリをマウントしています。
+
+本リポジトリのファイルは、`$HOME/catkin_ws/src`ディレクトリ配下に配置するため、ホストPC上での変更は、起動中のコンテナにも反映されます。
+
+それにより、以下のディレクトリ配下のファイルを修正したときに、burger-war-kitイメージを再ビルドする必要はありません。
+
+- `burger_war/`
+- `judge/`
+- `scripts/`
+
+ただし、`docker`ディレクトリ配下のファイルは、burger-war-kitイメージのビルド時に反映される為、再ビルドするようにして下さい。
+
+<br />
+
+#### GitHub Actions環境
+GitHub Actionsでは、`catkin_ws`ディレクトリはマウントせずに、burger-war-kitイメージに取り込んだソースを参照するようにしています。
+
+具体的にはburger-war-kitイメージのビルド時に、以下のディレクトリを`/home/developer/catkin_ws/src/burger_war_kit/`直下にコピーしています。
+
+- `bruger_war/`
+- `judge/`
+- `scripts/`
+
+その他、GitHub ActionsではGUIを表示するディスプレイがない為、`Xvfb`という仮想ディスプレイを使用しているという違いがあります。
+
+<br />
+
+## 6. burger-war-kitイメージ(テスト版)を使って動作確認
 ### 6.1 テスト版のburger-war-kitイメージを取得
 -------------------------------------------------------------------------------
 以下のコマンドで、テストにパスしたburger-war-kitイメージを取得して下さい。  
@@ -366,7 +398,7 @@ bash commands/docker-launch.sh
 <br />
 
 ## 8. mainブランチにマージ
-リポジトリの管理者は、任意のタイミングでdevブランチをマージして下さい。
+リポジトリの管理者は、任意のタイミングでdevブランチをmainブランチへマージして下さい。
 
 mainブランチへのマージ時に、[5と同様の自動ビルド・テスト](#5-github-actionsによる自動ビルドテスト)がGitHub Actionsで実行されます。
 
@@ -379,11 +411,13 @@ mainブランチでの自動テスト時に作成されるburger-war-kitイメ�
 
 <br />
 
-## 9. burger-war-kitイメージをリリース (burger-war-kitイメージ(テスト版)にlatestタグを付与)
-自動テスト時にghcr.ioにプッシュされたテスト版のburger-war-kitイメージに、以下のバージョンを付与することでburger_war_devで利用できるようにします。
+## 9. burger-war-kitイメージをリリース
+自動テスト時にghcr.ioにプッシュされたテスト版のburger-war-kitイメージに、以下のバージョンを付与します。
 
 - `4.N.n`    ※N, nは整数
 - `latest`
+
+`latest`を付与することで、burger_war_devのDockerイメージのビルド時に、最新のburger-war-kitイメージを利用できるようにします。
 
 具体的には、ブラウザで以下のページを開き、リリース用のGitHub Actionsを実行します。
 
@@ -425,17 +459,12 @@ burger-war-kitイメージをdocker-push.shを使用してghcr.ioにプッシュ
 
 <br />
 
-#### 1. Developers settings をクリック
-![PAT作成手順1](https://user-images.githubusercontent.com/76457573/106542094-7fbad980-6546-11eb-8f1e-29d968c5403f.png)
-
-<br />
-
-#### 2. Personal access tokens の Generate new tokenをクリック
+#### 1. Personal access tokens の Generate new tokenをクリック
 ![PAT作成手順2](https://user-images.githubusercontent.com/76457573/106542236-c4467500-6546-11eb-84e8-76071223a224.png)
 
 <br />
 
-#### 3. Select scopes で権限設定
+#### 2. Select scopes で権限設定
 少なくとも以下にチェックを入れて、ページ下部にある[Generate token]をクリックして下さい。
 
 - write:packages
