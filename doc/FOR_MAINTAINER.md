@@ -30,7 +30,7 @@ burger_war_kitリポジトリでは、[burger_war_dev](https://github.com/p-robo
   - [7.2 burger-war-kitイメージの動作確認](#72-burger-war-kit%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%81%AE%E5%8B%95%E4%BD%9C%E7%A2%BA%E8%AA%8D)
   - [7.3 burger-war-devイメージでの動作確認](#73-burger-war-dev%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%81%A7%E3%81%AE%E5%8B%95%E4%BD%9C%E7%A2%BA%E8%AA%8D)
 - [8. mainブランチにマージ](#8-main%E3%83%96%E3%83%A9%E3%83%B3%E3%83%81%E3%81%AB%E3%83%9E%E3%83%BC%E3%82%B8)
-- [9. burger-war-kitイメージをリリース (burger-war-kitイメージ(テスト版)にlatestタグを付与)](#9-burger-war-kit%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%82%92%E3%83%AA%E3%83%AA%E3%83%BC%E3%82%B9-burger-war-kit%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%83%86%E3%82%B9%E3%83%88%E7%89%88%E3%81%ABlatest%E3%82%BF%E3%82%B0%E3%82%92%E4%BB%98%E4%B8%8E)
+- [9. burger-war-kitイメージをリリース](#9-burger-war-kit%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%82%92%E3%83%AA%E3%83%AA%E3%83%BC%E3%82%B9)
 - [補足](#%E8%A3%9C%E8%B6%B3)
   - [A. Personal access token の作成](#a-personal-access-token-%E3%81%AE%E4%BD%9C%E6%88%90)
   - [B. 手動でghcr.ioにプッシュしたい場合](#b-%E6%89%8B%E5%8B%95%E3%81%A7ghcrio%E3%81%AB%E3%83%97%E3%83%83%E3%82%B7%E3%83%A5%E3%81%97%E3%81%9F%E3%81%84%E5%A0%B4%E5%90%88)
