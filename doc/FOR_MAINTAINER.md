@@ -5,18 +5,18 @@ burger_war_kitリポジトリでは、[burger_war_dev](https://github.com/p-robo
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-目次
+**目次**
 
 - [Dockerfileの構成](#dockerfile%E3%81%AE%E6%A7%8B%E6%88%90)
 - [Docker関連のファイル構成](#docker%E9%96%A2%E9%80%A3%E3%81%AE%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E6%A7%8B%E6%88%90)
 - [Gitのブランチ運用方法](#git%E3%81%AE%E3%83%96%E3%83%A9%E3%83%B3%E3%83%81%E9%81%8B%E7%94%A8%E6%96%B9%E6%B3%95)
 - [開発の流れ](#%E9%96%8B%E7%99%BA%E3%81%AE%E6%B5%81%E3%82%8C)
-- [1. burger-war-kitイメージに影響があるファイルの修正(Dockerfileなど)](#1-burger-war-kit%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%81%AB%E5%BD%B1%E9%9F%BF%E3%81%8C%E3%81%82%E3%82%8B%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E3%81%AE%E4%BF%AE%E6%AD%A3dockerfile%E3%81%AA%E3%81%A9)
+- [1. burger-war-kitイメージの修正](#1-burger-war-kit%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%81%AE%E4%BF%AE%E6%AD%A3)
 - [2. burger-war-kitイメージのビルド](#2-burger-war-kit%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%81%AE%E3%83%93%E3%83%AB%E3%83%89)
 - [3. burger-war-kitイメージの動作確認](#3-burger-war-kit%E3%82%A4%E3%83%A1%E3%83%BC%E3%82%B8%E3%81%AE%E5%8B%95%E4%BD%9C%E7%A2%BA%E8%AA%8D)
   - [3.1 コンテナの起動](#31-%E3%82%B3%E3%83%B3%E3%83%86%E3%83%8A%E3%81%AE%E8%B5%B7%E5%8B%95)
-  - [3.2 コンテナ内でコマンドを実行](#32-%E3%82%B3%E3%83%B3%E3%83%86%E3%83%8A%E5%86%85%E3%81%A7%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89%E3%82%92%E5%AE%9F%E8%A1%8C)
-  - [3.3 scriptsディレクトリ配下のスクリプトを実行する](#33-scripts%E3%83%87%E3%82%A3%E3%83%AC%E3%82%AF%E3%83%88%E3%83%AA%E9%85%8D%E4%B8%8B%E3%81%AE%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%97%E3%83%88%E3%82%92%E5%AE%9F%E8%A1%8C%E3%81%99%E3%82%8B)
+  - [3.2 ホストPCからコンテナ内でコマンドを実行](#32-%E3%83%9B%E3%82%B9%E3%83%88pc%E3%81%8B%E3%82%89%E3%82%B3%E3%83%B3%E3%83%86%E3%83%8A%E5%86%85%E3%81%A7%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89%E3%82%92%E5%AE%9F%E8%A1%8C)
+  - [3.3 ホストPCからscriptsディレクトリ配下のスクリプトを実行](#33-%E3%83%9B%E3%82%B9%E3%83%88pc%E3%81%8B%E3%82%89scripts%E3%83%87%E3%82%A3%E3%83%AC%E3%82%AF%E3%83%88%E3%83%AA%E9%85%8D%E4%B8%8B%E3%81%AE%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%97%E3%83%88%E3%82%92%E5%AE%9F%E8%A1%8C)
 - [4. 修正したDockerfileなどをGitHubにプッシュ](#4-%E4%BF%AE%E6%AD%A3%E3%81%97%E3%81%9Fdockerfile%E3%81%AA%E3%81%A9%E3%82%92github%E3%81%AB%E3%83%97%E3%83%83%E3%82%B7%E3%83%A5)
 - [5. GitHub Actionsによる自動ビルド・テスト](#5-github-actions%E3%81%AB%E3%82%88%E3%82%8B%E8%87%AA%E5%8B%95%E3%83%93%E3%83%AB%E3%83%89%E3%83%BB%E3%83%86%E3%82%B9%E3%83%88)
   - [5.1 自動ビルド・テストの実行トリガ](#51-%E8%87%AA%E5%8B%95%E3%83%93%E3%83%AB%E3%83%89%E3%83%BB%E3%83%86%E3%82%B9%E3%83%88%E3%81%AE%E5%AE%9F%E8%A1%8C%E3%83%88%E3%83%AA%E3%82%AC)
