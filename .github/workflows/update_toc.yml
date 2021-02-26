@@ -4,9 +4,6 @@ name: Update Markown TOC
 # トリガーイベントの指定
 on:
   push:
-    branches:
-      - master
-      - with_docker
     paths: 
       - '**.md'
 
@@ -27,3 +24,5 @@ jobs:
           # 目次を作成する最大階層レベル
           MAX_HEADER_LEVEL: 3
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # 目次の見出し
+          TOC_TITLE: '目次'
