@@ -84,7 +84,10 @@ RUN useradd --create-home --home-dir /home/${USERNAME} --shell /bin/bash --user-
 RUN test -f /etc/ros/rosdep/sources.list.d/20-default.list \
     && rm /etc/ros/rosdep/sources.list.d/20-default.list
 RUN rosdep init \
-    && gosu ${USERNAME} rosdep update
+    && gosu ${USERNAME} rosdep update \
+    && mkdir -p /home/${USERNAME}/.config/catkin/verb_aliases \
+    && mkdir -p /home/${USERNAME}/.ros/log \
+    && mkdir -p /home/${USERNAME}/.gazebo/log
 
 # ワークスペース作成
 #------------------------------------------------
