@@ -84,16 +84,12 @@ RUN useradd --create-home --home-dir /home/${USERNAME} --shell /bin/bash --user-
 RUN test -f /etc/ros/rosdep/sources.list.d/20-default.list \
     && rm /etc/ros/rosdep/sources.list.d/20-default.list
 RUN rosdep init \
-    && gosu ${USERNAME} rosdep update \
-    && mkdir -p /home/${USERNAME}/.config/catkin/verb_aliases \
-    && mkdir -p /home/${USERNAME}/.ros/log \
-    && mkdir -p /home/${USERNAME}/.gazebo/log
+    && gosu ${USERNAME} rosdep update
 
 # ワークスペース作成
 #------------------------------------------------
 ARG ROBOCON_WS=/home/${USERNAME}/catkin_ws
 RUN mkdir -p ${ROBOCON_WS}/src/burger_war_kit \
-    && chmod 777 /home/${USERNAME}/catkin_ws \
     && mkdir -p ${ROBOCON_WS}/logs
 COPY ./burger_war ${ROBOCON_WS}/src/burger_war_kit/burger_war
 COPY ./judge ${ROBOCON_WS}/src/burger_war_kit/judge
