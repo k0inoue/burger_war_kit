@@ -16,7 +16,7 @@ on:
 
 # 環境変数の設定
 env:
-  DOCKER_BUILDKIT: 1
+  DOCKER_BUILDKIT: 0
   RESISTRY_URL: ghcr.io/${{ github.repository_owner }}
   IMAGE_NAME: burger-war-kit
   DOCKER_FILE: ./docker/kit/Dockerfile
