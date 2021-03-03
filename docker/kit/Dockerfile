@@ -114,6 +114,15 @@ RUN cat /home/${USERNAME}/export_env \
 
 RUN chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/
 
+# 野下環境セットアップ
+#------------------------------------------------
+# 必要なもののインストール
+RUN apt-get update -q && apt-get install -y --no-install-recommends \
+        alsa-utils \
+    && rm -rf /var/lib/apt/lists/*
+# 必要なファイルを展開
+COPY ./docker/templates/asoundrc /home/${USERNAME}/.asoundrc
+
 # 環境変数の設定
 ENV TZ Asia/Tokyo
 
