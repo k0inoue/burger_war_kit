@@ -1,0 +1,25 @@
+# ref: https://stackoverflow.com/questions/39552522/raspberry-pi-aplay-default-sound-card
+# コンテナ内で設定後は、↓のコマンドを実行
+# sudo /etc/init.d/alsa-utils restart
+pcm.!default {
+    type plug
+    slave {
+            pcm "dmixer"
+    }
+}
+
+pcm.dmixer {
+        type dmix
+        ipc_key 1024
+        slave {
+                pcm "hw:1,0"
+                period_time 0
+                period_size 1024
+                buffer_size 4096
+                rate 44100
+        }
+        bindings {
+                0 0
+                1 1
+        }
+}
