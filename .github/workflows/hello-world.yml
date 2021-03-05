@@ -23,7 +23,6 @@ jobs:
       # 環境準備
       - name: Checkout repository
         uses: actions/checkout@v2
-        run: echo Hello, world!
 
       # Dockerのversion確認
       #- name: Print Docker Version
