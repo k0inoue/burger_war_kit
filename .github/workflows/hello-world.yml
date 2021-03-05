@@ -10,7 +10,7 @@ env:
   DOCKER_FILE: ./docker/kit/Dockerfile
 #  TEST_VERSION: test.${{ github.run_number }}
 #  TEST_LOG_ARCHIVE: test_logs-${{ github.run_number }}
-#  DISPLAY: :99
+  DISPLAY: ':99'
 
 # 実行する処理
 jobs:
