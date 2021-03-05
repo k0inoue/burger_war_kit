@@ -1,0 +1,16 @@
+name: Hello World
+on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'If run flow, input "run".'
+        required: true
+        default: ''
+    branches: [ main ]
+jobs:
+  build:
+    if: github.event.inputs.logLevel == 'run'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Run a one-line script
+      run: echo Hello, world!
