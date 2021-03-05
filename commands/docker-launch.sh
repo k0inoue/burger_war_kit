@@ -3,13 +3,12 @@
 #-burger-war-kitのDockerコンテナを起動する
 #-
 #+[USAGE]
-#+  $0 [-a RUNオプション] [-f][-r] [-t 起動ターゲット] [-v イメージのバージョン] [-w WSディレクトリ] [-h]
+#+  $0 [-a RUNオプション] [-f][-r] [-v イメージのバージョン] [-w WSディレクトリ] [-h]
 #+
 #-[OPTIONS]
 #-  -a options    'docker run'に追加で渡す引数を指定（複数回指定可能）
 #-  -f            既存のコンテナを削除して、新しいコンテナを作成し起動する
 #-  -r            既存のコンテナを前回の設定で再起動する
-#-  -t target     起動するターゲットの指定(core|dev|robo|sim|vnc) (default: dev)
 #-  -R            ghcr.io上にプッシュされているdockerイメージを使用する
 #-  -w dir-path   ホストPCのロボコンワークスペースのパスを指定 (default: $HOME/catkin_ws)
 #-  -v version    'docker run'で起動するイメージの'version'を指定 (default: latest)
@@ -98,13 +97,11 @@ print_run_message() {
     exit 1
   fi
   # 起動成功時
-  vnc_port=$(docker ps -f "name=${container_name}" --format "{{.Ports}}" | sed 's@^.*:\([0-9]\{1,\}\).*$@\1@')
   echo ""
   echo "#--------------------------------------------------------------------"
   echo "# 開発用のコンテナを起動しました"
   echo "# USE IMAGE NAME: ${image_name}"
   echo "# CONTAINER NAME: ${container_name}"
-  [ -n "${vnc_port}" ] && echo "# VNC ADDR:PORT : localhost:${vnc_port}"
   echo "#--------------------------------------------------------------------"
 }
 
@@ -241,30 +238,8 @@ if [ -n "${RESTART_CONTAINER_REQUEST}" ]; then
   set -x
   docker start ${RUN_DOCKER_CONTAINER_NAME}
   set +x
-elif [ "${RUN_TARGET}" == "vnc" ]; then
-  # 新しくVNC版コンテナを起動
-  set -x
-  docker run \
-     --name ${RUN_DOCKER_CONTAINER_NAME} \
-    -d \
-    --privileged \
-    --mount type=bind,src=${HOST_WS_DIR},dst=${CONTAINER_WS_DIR} \
-    -v /dev/shm \
-    -e DISPLAY=:1 \
-    -e HOST_USER_ID=$(id -u) \
-    -e HOST_GROUP_ID=$(id -g) \
-    -e PASSWORD=${VNC_PASSWORD} \
-    -e RESOLUTION=${VNC_RESOLUTION} \
-    -e X11VNC_ARGS=${VNC_X11VNC_ARGS} \
-    -e OPENBOX_ARGS=${VNC_OPENBOX_ARGS} \
-    -p ${VNC_PORT}:5900 \
-    ${PROXY_OPTION} \
-    ${RUN_OPTION} \
-    ${RUN_DOCKER_IMAGE_NAME_FULL} \
-    tail -f /dev/null
-  set +x
 else
-  # 新しく通常版コンテナを起動
+  # 新しくコンテナを起動
   set -x
   docker run \
     --name ${RUN_DOCKER_CONTAINER_NAME} \
@@ -289,6 +264,6 @@ cat <<-EOM
 #--------------------------------------------------------------------
 # 開発用のベースコンテナを起動しました
 # USE IMAGE NAME: ${KIT_DOCKER_IMAGE_NAME}:${IMAGE_VERSION}
-# CONTAINER NAME: ${KIT_DOCKER_CONTAINER_NAME}
+# CONTAINER NAME: ${RUN_DOCKER_CONTAINER_NAME}
 #--------------------------------------------------------------------
 EOM
