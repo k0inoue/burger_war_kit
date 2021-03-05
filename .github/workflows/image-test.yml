@@ -11,8 +11,14 @@ on:
       - 'burger_war/**'
       - '.github/workflows/image-test.yml'
 
-  # ブラウザ上からの手動実行設定
+  # 手動で実行する
   workflow_dispatch:
+    inputs:
+      # テスト実施バージョンの指定
+      test_version:
+        description: 'テスト実施バージョン (Format: test.N  ※Nは整数)'
+        default: test.N
+        required: false
 
 # 環境変数の設定
 env:
