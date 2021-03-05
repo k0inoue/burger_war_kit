@@ -41,25 +41,25 @@ jobs:
           Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
 
       # burger-war-kitコンテナ起動
-      #- name: Launch Docker Container
-      #  run: |
-      #    id
-      #    mkdir -p ${GITHUB_WORKSPACE}/catkin_ws/logs
-      #    docker run \
-      #      --name ${{ env.IMAGE_NAME }} \
-      #      -d \
-      #      --privileged \
-      #      --net host \
-      #      --mount type=bind,src=${GITHUB_WORKSPACE}/catkin_ws/logs,dst=/home/developer/catkin_ws/logs \
-      #      --device /dev/snd \
-      #      -v /dev/shm \
-      #      -e DISPLAY=${{ env.DISPLAY }} \
-      #      -e HOST_USER_ID=$(id -u) \
-      #      -e HOST_GROUP_ID=$(id -g) \
-      #      ${{ env.IMAGE_NAME }} \
-      #      tail -f /dev/null
-      #    docker ps -a
-      #    docker logs ${{ env.IMAGE_NAME }}
+      - name: Launch Docker Container
+        run: |
+          id
+          mkdir -p ${GITHUB_WORKSPACE}/catkin_ws/logs
+          docker run \
+            --name ${{ env.IMAGE_NAME }} \
+            -d \
+            --privileged \
+            --net host \
+            --mount type=bind,src=${GITHUB_WORKSPACE}/catkin_ws/logs,dst=/home/developer/catkin_ws/logs \
+            --device /dev/snd \
+            -v /dev/shm \
+            -e DISPLAY=${{ env.DISPLAY }} \
+            -e HOST_USER_ID=$(id -u) \
+            -e HOST_GROUP_ID=$(id -g) \
+            ${{ env.IMAGE_NAME }} \
+            tail -f /dev/null
+          docker ps -a
+          docker logs ${{ env.IMAGE_NAME }}
       
       # ロボコンプロジェクトのビルド
       #- name: Build Robot Programs
