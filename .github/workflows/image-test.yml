@@ -1,7 +1,7 @@
 name: Kit Image Build & Test
 
 # トリガーイベントの指定
-on:
+on: [ workflow_dispatch ]
   # 指定ブランチで指定ファイルがPUSHされたときに実行する
   push:
     paths:
@@ -12,7 +12,6 @@ on:
       - '.github/workflows/image-test.yml'
 
   # ブラウザ上からの手動実行設定
-  [ workflow_dispatch ]
 
 # 環境変数の設定
 env:
