@@ -62,22 +62,22 @@ jobs:
           docker logs ${{ env.IMAGE_NAME }}
       
       # ロボコンプロジェクトのビルド
-      #- name: Build Robot Programs
-      #  run: |
-      #    id
-      #    echo UID: $(id -u)
-      #    echo GID: $(id -g)
-      #    docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "id"
-      #    docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "ls -la ~/"
-      #    docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "ls -la ~/.config/catkin"
-      #    docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "ls -la ~/catkin_ws"
-      #    docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "catkin build"
+      - name: Build Robot Programs
+        run: |
+          id
+          echo UID: $(id -u)
+          echo GID: $(id -g)
+          docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "id"
+          docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "ls -la ~/"
+          docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "ls -la ~/.config/catkin"
+          docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "ls -la ~/catkin_ws"
+          docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "catkin build"
 
       # burger-war-kitのテスト
-      #- name: Test Docker Image
-      #  id: image-test
-      #  run: |
-      #    docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "cd src/burger_war_kit && bash scripts/sim_run_test.sh"
+      - name: Test Docker Image
+        id: image-test
+        run: |
+          docker exec -u developer -t ${{ env.IMAGE_NAME }} bash -l -c "cd src/burger_war_kit && bash scripts/sim_run_test.sh"
 
       # テスト結果をArtifactにアップロードする
       #- name: Upload Artifact
