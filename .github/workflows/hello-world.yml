@@ -38,8 +38,7 @@ jobs:
       - name: Xvfb install and run
         run: |
           sudo apt-get install -y xvfb
-        #  Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
-          Xvfb :99 -screen 0 1280x780x24 &
+          Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
 
       # burger-war-kitコンテナ起動
       #- name: Launch Docker Container
