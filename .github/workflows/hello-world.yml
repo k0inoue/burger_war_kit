@@ -25,9 +25,9 @@ jobs:
         uses: actions/checkout@v2
 
       # Dockerのversion確認
-      #- name: Print Docker Version
-      #  run: |
-      #    docker version
+      - name: Print Docker Version
+        run: |
+          docker version
 
       # burger-war-kitイメージのビルド
       #- name: Build Docker Image
