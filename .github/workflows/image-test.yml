@@ -3,13 +3,13 @@ name: Kit Image Build & Test
 # トリガーイベントの指定
 on:
   # 指定ブランチで指定ファイルがPUSHされたときに実行する
-  push:
-    paths:
-      - 'docker/**'
-      - 'scripts/**'
-      - 'judge/**'
-      - 'burger_war/**'
-      - '.github/workflows/image-test.yml'
+  #push:
+  #  paths:
+  #    - 'docker/**'
+  #    - 'scripts/**'
+  #    - 'judge/**'
+  #    - 'burger_war/**'
+  #    - '.github/workflows/image-test.yml'
 
   # 手動で実行する
   workflow_dispatch:
