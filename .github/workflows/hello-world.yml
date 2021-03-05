@@ -10,7 +10,7 @@ env:
   DOCKER_FILE: ./docker/kit/Dockerfile
 #  TEST_VERSION: test.${{ github.run_number }}
 #  TEST_LOG_ARCHIVE: test_logs-${{ github.run_number }}
-#  DISPLAY: :99
+  DISPLAY: :99
 
 # 実行する処理
 jobs:
@@ -35,10 +35,10 @@ jobs:
           docker build --file ${{ env.DOCKER_FILE }} --tag ${{ env.IMAGE_NAME }} .
 
       # xvfbのインストールと起動
-      #- name: Xvfb install and run
-      #  run: |
-      #    sudo apt-get install -y xvfb
-      #    Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
+      - name: Xvfb install and run
+        run: |
+          sudo apt-get install -y xvfb
+          Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &
 
       # burger-war-kitコンテナ起動
       #- name: Launch Docker Container
